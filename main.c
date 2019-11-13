@@ -19,7 +19,7 @@ int main() {
     SetElement temp = ele1;
     int count = 0;
     while(temp){
-        temp->amount = ++count;
+        temp->amount = count++;
         temp=temp->next;
     }
 
