@@ -1,33 +1,38 @@
-#include <stdio.h>
 #include <stdlib.h>
-typedef struct set_element{
-    int amount;
-    struct set_element* next;
-}*SetElement;
+#include <stdio.h>
+#include "amount_set.h"
+
+ASElement copyInt(ASElement element){
+    if(element==NULL){
+        return NULL;
+    }
+    int* newInt = malloc(sizeof(int));
+    if(newInt == NULL){
+        return NULL;
+    }
+    *newInt = *(int*)element;
+    return newInt;
+}
+void freeInt(ASElement element){
+    free(element);
+}
+int compareInt(ASElement element1,ASElement element2){
+    int ele1 = *(int*)element1;
+    int ele2 = *(int*)element2;
+    int result = 0;
+    if(ele1>ele2){
+        result = 1;
+    }
+    else if(ele1<ele2){
+        result = -1;
+    }
+    else
+        result = 0;
+    return result;
+}
 
 int main() {
-    SetElement ele1 = malloc(sizeof(*ele1));
-    SetElement ele2 = malloc(sizeof(*ele2));
-    SetElement ele3 = malloc(sizeof(*ele3));
-    SetElement ele4 = malloc(sizeof(*ele4));
-    SetElement ele5 = malloc(sizeof(*ele5));
-    ele1->next=ele2;
-    ele2->next=ele3;
-    ele3->next=ele4;
-    ele4->next=ele5;
-    ele5->next=NULL;
-    SetElement temp = ele1;
-    int count = 0;
-    while(temp){
-        temp->amount = count++;
-        temp=temp->next;
-    }
+    void* aviv = asCreate(copyInt,freeInt,compareInt);
 
-    temp = ele1;
-    while(temp){
-        printf("%d",temp->amount);
-        temp=temp->next;
-    }
-    //printf("%d",ele1->amount);
     return 0;
 }
