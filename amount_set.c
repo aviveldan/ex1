@@ -10,6 +10,11 @@ struct AmountSet_t{
     CompareASElements compareElements;
 };
 
+typedef struct set {
+    struct set* next;
+    ASElement value;
+} *Set;
+
 AmountSet asCreate(CopyASElement copyElement,
                    FreeASElement freeElement,
                    CompareASElements compareElements){
@@ -27,6 +32,8 @@ AmountSet asCreate(CopyASElement copyElement,
     result->first = NULL;
     return result;
 }
+
+
 
 
 
