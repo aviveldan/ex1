@@ -3,17 +3,20 @@
 //
 #include "amount_set.h"
 #include <stdlib.h>
+
+typedef struct ASListNode_t {
+    struct set* next;
+    ASElement value;
+} *ASListNode;
+
 struct AmountSet_t{
-    ASElement first;
+    ASListNode first;
     CopyASElement copyElement;
     FreeASElement freeElement;
     CompareASElements compareElements;
 };
 
-typedef struct set {
-    struct set* next;
-    ASElement value;
-} *Set;
+
 
 AmountSet asCreate(CopyASElement copyElement,
                    FreeASElement freeElement,
@@ -33,6 +36,19 @@ AmountSet asCreate(CopyASElement copyElement,
     return result;
 }
 
+
+void asDestroy(AmountSet set){
+    if(set==NULL){
+        return;
+    }
+    ASListNode ptr = set->first;
+    while(ptr){
+        ASListNode remove = ptr;
+        set->freeElement(remove);
+        ptr=ptr->next;
+    }
+    free(set);
+}
 
 
 
