@@ -41,6 +41,7 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
         }
         set->first = node;
         node->value = set->copyElement(element);
+        node->next=NULL;
         return AS_SUCCESS;
     }
     if (searchFor(set, element) != NULL) {
@@ -84,7 +85,6 @@ ASElement asGetFirst(AmountSet set) {
     }
 }
 
-
 AmountSet asCreate(CopyASElement copyElement,
                    FreeASElement freeElement,
                    CompareASElements compareElements){
@@ -104,14 +104,6 @@ AmountSet asCreate(CopyASElement copyElement,
     result->size = 0;
     return result;
 }
-
-
-
-
-
-
-
-
 
 AmountSet asCopy(AmountSet set){
     if(set == NULL){
@@ -141,8 +133,6 @@ AmountSet asCopy(AmountSet set){
     return result;
 }
 
-
-
 ASElement asGetNext(AmountSet set){
     if(set==NULL){
         return NULL;
@@ -154,6 +144,7 @@ ASElement asGetNext(AmountSet set){
     }
     return set->iterator->value;
 }
+
 AmountSetResult asClear(AmountSet set) {
     if(set==NULL){
         return AS_NULL_ARGUMENT;
