@@ -29,24 +29,51 @@ ASListNode searchFor(AmountSet set, ASElement element){
             return false;
     }
 }
-/*
+
 AmountSetResult asRegister(AmountSet set, ASElement element) {
     if (element==NULL) {
         return AS_NULL_ARGUMENT;
     }
     if (set->first==NULL) {
-        set->first=set->copyElement(element);
+        ASListNode node =  malloc(sizeof(*node));
+        if(node==NULL){
+            return AS_OUT_OF_MEMORY;
+        }
+        set->first = node;
+        node->value = set->copyElement(element);
         return AS_SUCCESS;
     }
     if (searchFor(set, element) != NULL) {
         return AS_ITEM_ALREADY_EXISTS;
-    } else {
-        AS_FOREACH(ASElement, i, set) {
-            if (set->compareElements(element, i))
-        }
     }
+
+    ASListNode previous;
+
+    AS_FOREACH(ASElement, i, set) {
+            if ((set->compareElements(element, i))<0) {
+                ASListNode node =  malloc(sizeof(*node));
+                if(node==NULL) {
+                    return AS_OUT_OF_MEMORY;
+                }
+                node->next = set->iterator;
+                previous->next = node;
+                node->value = set->copyElement(element);
+                return AS_SUCCESS;
+            } else {
+                previous = set->iterator;
+            }
+    }
+
+    ASListNode node =  malloc(sizeof(*node));
+    if(node==NULL) {
+        return AS_OUT_OF_MEMORY;
+    }
+    previous->next = node;
+    node->value = set->copyElement(element);
+    node->next = NULL;
+    return AS_SUCCESS;
 }
-*/
+
 //assigns iterator to the first element of the set and returns the value of the first element.
 ASElement asGetFirst(AmountSet set) {
     if (set==NULL || set->first==NULL) {
