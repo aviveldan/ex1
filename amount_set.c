@@ -1,11 +1,12 @@
 //
 // Created by avive on 15/11/2019.
 //
+#define NULL_POINTER_SENT -1
 #include "amount_set.h"
 #include <stdlib.h>
 
 typedef struct ASListNode_t {
-    struct set* next;
+    struct ASListNode_t* next;
     ASElement value;
     double amount;
 } *ASListNode;
@@ -16,6 +17,7 @@ struct AmountSet_t{
     FreeASElement freeElement;
     CompareASElements compareElements;
     ASListNode iterator;
+    int size;
 };
 
 
@@ -36,6 +38,7 @@ AmountSet asCreate(CopyASElement copyElement,
     result->compareElements=compareElements;
     result->first = NULL;
     result->iterator = 0;
+    result->size = 0;
     return result;
 }
 
@@ -77,6 +80,12 @@ void asDestroy(AmountSet set){
     free(set); //frees AmountSet
 }
 
+int asGetSize(AmountSet set){
+    if(set==NULL){
+        return NULL_POINTER_SENT;
+    }
+    return set->size;
+}
 
 
 

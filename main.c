@@ -33,6 +33,7 @@ int compareInt(ASElement element1,ASElement element2){
 
 int main() {
     void* aviv = asCreate(copyInt,freeInt,compareInt);
+    asGetSize(aviv);
     asDestroy(aviv);
     return 0;
 }
