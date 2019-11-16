@@ -118,7 +118,7 @@ AmountSet asCopy(AmountSet set){
         return NULL;
     }
     // Create a new set
-    AmountSet result =  asCreate(set->copyElement,set->freeElement,set->copyElement);
+    AmountSet result =  asCreate(set->copyElement,set->freeElement,set->compareElements);
     if(result==NULL){
         return NULL;
     }
