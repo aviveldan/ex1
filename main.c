@@ -2,46 +2,34 @@
 #include <stdio.h>
 #include "amount_set.h"
 
-ASElement copyInt(ASElement element){
-    if(element==NULL){
-        return NULL;
-    }
-    int* newInt = malloc(sizeof(int));
-    if(newInt == NULL){
-        return NULL;
-    }
-    *newInt = *(int*)element;
-    return newInt;
+static ASElement copyInt(ASElement number) {
+int *copy = malloc(sizeof(*copy));
+if (copy != NULL) {
+*copy = *(int *)number;
 }
-void freeInt(ASElement element){
-    free(element);
+return copy;
 }
-int compareInt(ASElement element1,ASElement element2){
-    int ele1 = *(int*)element1;
-    int ele2 = *(int*)element2;
-    int result = 0;
-    if(ele1>ele2){
-        result = 1;
-    }
-    else if(ele1<ele2){
-        result = -1;
-    }
-    else
-        result = 0;
-    return result;
+
+static void freeInt(ASElement number) {
+    free(number);
+}
+
+static int compareInts(ASElement lhs, ASElement rhs) {
+    return (*(int *)lhs) - (*(int *)rhs);
 }
 
 int main() {
-    AmountSet aviv = asCreate(copyInt,freeInt,compareInt);
+    AmountSet aviv = asCreate(copyInt,freeInt,compareInts);
     asGetSize(aviv);
-    /*
+
     int i = 8;
-    asRegister(aviv,&i);
+    int* ptr = &i;
+    asRegister(aviv,ptr);
+
     int* l = asGetFirst(aviv);
+
     printf("hello %d",*l);
-    */
-    AmountSet lior = asCopy(aviv);
+    asClear(aviv);
     asDestroy(aviv);
-    asDestroy(lior);
     return 0;
 }
