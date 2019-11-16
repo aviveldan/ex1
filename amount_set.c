@@ -42,6 +42,22 @@ AmountSet asCreate(CopyASElement copyElement,
     return result;
 }
 
+
+ASListNode searchFor2(AmountSet set, ASElement element){
+    AS_FOREACH(ASElement,i,set){
+        if(set->compareElements(i,element) == 0){
+            return set->iterator;
+        }
+        else
+            return false;
+    }
+}
+
+
+
+
+
+
 /* //Waiting for function for copying Lists
 AmountSet asCopy(AmountSet set){
     if(set == NULL){
@@ -86,6 +102,49 @@ int asGetSize(AmountSet set){
     }
     return set->size;
 }
+bool asContains(AmountSet set, ASElement element){
+    if(searchFor2(set,element)==NULL){
+        return false;
+    }
+    else
+        return true;
+}
+
+AmountSetResult asChangeAmount(AmountSet set, ASElement element, const double amount){
+    if(set==NULL || element == NULL){
+        return AS_NULL_ARGUMENT;
+    }
+    ASListNode node = searchFor2(set,element);
+    if(node==NULL){
+        return AS_ITEM_DOES_NOT_EXIST;
+    }
+    if(((node->amount)+amount)<0){
+        return AS_INSUFFICIENT_AMOUNT;
+    }
+    node->amount += amount;
+    return AS_SUCCESS;
+}
+
+AmountSetResult asDelete(AmountSet set, ASElement element){
+    if(set==NULL || element == NULL){
+        return AS_NULL_ARGUMENT;
+    }
+    ASListNode node = searchFor2(set,element);
+    if(node==NULL){
+        return AS_ITEM_DOES_NOT_EXIST;
+    }
+    ASListNode item = set->first;
+    for(; item->next==NULL ; item=item->next){ \
+        if(item->next==node){
+            item->next = node->next;
+            set->freeElement(node->value);
+            free(node);
+        }
+    }
+}
+
+
+
 
 
 
