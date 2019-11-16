@@ -15,7 +15,7 @@ struct AmountSet_t{
     CopyASElement copyElement;
     FreeASElement freeElement;
     CompareASElements compareElements;
-    int iterator;
+    ASListNode iterator;
 };
 
 
@@ -50,7 +50,15 @@ AmountSet asCopy(AmountSet set){
 
 
 ASElement asGetNext(AmountSet set){
-    (set->iterator)++;
+    if(set==NULL){
+        return NULL;
+    }
+
+    set->iterator = set->iterator->next;
+    if(set->iterator == NULL) {
+        return NULL;
+    }
+    return set->iterator->value;
 }
 
 
