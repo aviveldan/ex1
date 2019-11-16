@@ -29,7 +29,7 @@ ASListNode searchFor(AmountSet set, ASElement element){
             return false;
     }
 }
-
+/*
 AmountSetResult asRegister(AmountSet set, ASElement element) {
     if (element==NULL) {
         return AS_NULL_ARGUMENT;
@@ -46,7 +46,7 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
         }
     }
 }
-
+*/
 //assigns iterator to the first element of the set and returns the value of the first element.
 ASElement asGetFirst(AmountSet set) {
     if (set==NULL || set->first==NULL) {
@@ -86,14 +86,34 @@ AmountSet asCreate(CopyASElement copyElement,
 
 
 
-/* //Waiting for function for copying Lists
 AmountSet asCopy(AmountSet set){
     if(set == NULL){
         return NULL;
     }
+    // Create a new set
     AmountSet result =  asCreate(set->copyElement,set->freeElement,set->copyElement);
+    if(result==NULL){
+        return NULL;
+    }
+    // Insert first item
+    ASListNode node = malloc(sizeof(*node));
+    if(node==NULL){
+        return NULL;
+    }
+    result->first = node;
+    node->value = result->copyElement(set->first);
+    // Insert next items
+    AS_FOREACH(ASElement,i,set){
+        ASListNode new_node = malloc(sizeof(*node));
+        if(new_node==NULL){
+            return NULL;
+        }
+        result->first = new_node;
+        new_node->value = result->copyElement(i);
+    }
+    return result;
 }
-*/
+
 
 
 ASElement asGetNext(AmountSet set){
@@ -107,20 +127,26 @@ ASElement asGetNext(AmountSet set){
     }
     return set->iterator->value;
 }
-
+AmountSetResult asClear(AmountSet set) {
+    if(set==NULL){
+        return AS_NULL_ARGUMENT;
+    }
+    ASListNode ptr = set->first;
+    while (ptr) {
+        ASListNode remove = ptr;
+        ASElement remove_value = remove->value;
+        set->freeElement(remove_value); //frees ASElement
+        free(remove); //frees ASListNode
+        ptr = ptr->next;
+    }
+    return AS_SUCCESS;
+}
 
 void asDestroy(AmountSet set){
     if(set==NULL){
         return;
     }
-    ASListNode ptr = set->first;
-    while(ptr){
-        ASListNode remove = ptr;
-        ASElement remove_value = remove->value;
-        set->freeElement(remove_value); //frees ASElement
-        free(remove); //frees ASListNode
-        ptr=ptr->next;
-    }
+    asClear(set);
     free(set); //frees AmountSet
 }
 
@@ -130,6 +156,7 @@ int asGetSize(AmountSet set){
     }
     return set->size;
 }
+
 bool asContains(AmountSet set, ASElement element){
     if(searchFor(set,element)==NULL){
         return false;
@@ -169,6 +196,18 @@ AmountSetResult asDelete(AmountSet set, ASElement element){
             free(node);
         }
     }
+}
+
+AmountSetResult asGetAmount(AmountSet set, ASElement element, double *outAmount){
+    if(set==NULL||element==NULL||outAmount==NULL){
+        return AS_NULL_ARGUMENT;
+    }
+    ASListNode node = searchFor(set,element);
+    if(node==NULL){
+        return AS_ITEM_DOES_NOT_EXIST;
+    }
+    *outAmount = node->amount;
+    return AS_SUCCESS;
 }
 
 

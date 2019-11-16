@@ -32,8 +32,16 @@ int compareInt(ASElement element1,ASElement element2){
 }
 
 int main() {
-    void* aviv = asCreate(copyInt,freeInt,compareInt);
+    AmountSet aviv = asCreate(copyInt,freeInt,compareInt);
     asGetSize(aviv);
+    /*
+    int i = 8;
+    asRegister(aviv,&i);
+    int* l = asGetFirst(aviv);
+    printf("hello %d",*l);
+    */
+    AmountSet lior = asCopy(aviv);
     asDestroy(aviv);
+    asDestroy(lior);
     return 0;
 }
