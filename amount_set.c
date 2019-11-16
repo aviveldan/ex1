@@ -20,6 +20,42 @@ struct AmountSet_t{
     int size;
 };
 
+ASListNode searchFor(AmountSet set, ASElement element){
+    AS_FOREACH(ASElement,i,set){
+        if(set->compareElements(i,element) == 0){
+            return set->iterator;
+        }
+        else
+            return false;
+    }
+}
+
+AmountSetResult asRegister(AmountSet set, ASElement element) {
+    if (element==NULL) {
+        return AS_NULL_ARGUMENT;
+    }
+    if (set->first==NULL) {
+        set->first=set->copyElement(element);
+        return AS_SUCCESS;
+    }
+    if (searchFor(set, element) != NULL) {
+        return AS_ITEM_ALREADY_EXISTS;
+    } else {
+        AS_FOREACH(ASElement, i, set) {
+            if (set->compareElements(element, i))
+        }
+    }
+}
+
+//assigns iterator to the first element of the set and returns the value of the first element.
+ASElement asGetFirst(AmountSet set) {
+    if (set==NULL || set->first==NULL) {
+        return NULL;
+    } else {
+        set->iterator=set->first;
+        return set->first->value;
+    }
+}
 
 
 AmountSet asCreate(CopyASElement copyElement,
@@ -43,15 +79,7 @@ AmountSet asCreate(CopyASElement copyElement,
 }
 
 
-ASListNode searchFor2(AmountSet set, ASElement element){
-    AS_FOREACH(ASElement,i,set){
-        if(set->compareElements(i,element) == 0){
-            return set->iterator;
-        }
-        else
-            return false;
-    }
-}
+
 
 
 
@@ -103,7 +131,7 @@ int asGetSize(AmountSet set){
     return set->size;
 }
 bool asContains(AmountSet set, ASElement element){
-    if(searchFor2(set,element)==NULL){
+    if(searchFor(set,element)==NULL){
         return false;
     }
     else
@@ -114,7 +142,7 @@ AmountSetResult asChangeAmount(AmountSet set, ASElement element, const double am
     if(set==NULL || element == NULL){
         return AS_NULL_ARGUMENT;
     }
-    ASListNode node = searchFor2(set,element);
+    ASListNode node = searchFor(set,element);
     if(node==NULL){
         return AS_ITEM_DOES_NOT_EXIST;
     }
@@ -129,7 +157,7 @@ AmountSetResult asDelete(AmountSet set, ASElement element){
     if(set==NULL || element == NULL){
         return AS_NULL_ARGUMENT;
     }
-    ASListNode node = searchFor2(set,element);
+    ASListNode node = searchFor(set,element);
     if(node==NULL){
         return AS_ITEM_DOES_NOT_EXIST;
     }
