@@ -137,6 +137,15 @@ AmountSet asCreate(CopyASElement copyElement,
     return result;
 }
 
+
+static void copyNodeData(AmountSet set,ASListNode target, ASListNode source){
+    if(target==NULL || source==NULL || set==NULL){
+        return;
+    }
+    target->amount=source->amount;
+    target->value = set->copyElement(source->value);
+}
+
 AmountSet asCopy(AmountSet set){
     if(set == NULL){
         return NULL;
@@ -146,21 +155,29 @@ AmountSet asCopy(AmountSet set){
     if(result==NULL){
         return NULL;
     }
+    result->size = set->size;
     // Insert first item
-    ASListNode node = malloc(sizeof(*node));
-    if(node==NULL){
+    if(set->first == NULL){
+        result->first = NULL;
+        return result;
+    }
+    ASListNode newNode = malloc(sizeof(*newNode));
+    if(newNode==NULL){
         return NULL;
     }
-    result->first = node;
-    node->value = result->copyElement(set->first);
+    copyNodeData(set,newNode,set->first);
+    result->first = newNode;
     // Insert next items
-    AS_FOREACH(ASElement,i,set){
-        ASListNode new_node = malloc(sizeof(*node));
-        if(new_node==NULL){
+    ASListNode set_next_item = set->first->next;
+    while(set_next_item!=NULL){
+        ASListNode next_newNode = malloc(sizeof(*newNode));
+        newNode->next = next_newNode;
+        if(next_newNode==NULL){
             return NULL;
         }
-        result->first = new_node;
-        new_node->value = result->copyElement(i);
+        copyNodeData(set,next_newNode,set_next_item);
+        set_next_item=set_next_item->next;
+        newNode=newNode->next;
     }
     return result;
 }
@@ -251,9 +268,6 @@ AmountSetResult asDelete(AmountSet set, ASElement element){
     if(beg==node){
 
         set->first = beg->next;
-        if(set->first == NULL){
-
-        }
         set->freeElement(beg->value);
         free(beg);
         (set->size)--;
