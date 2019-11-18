@@ -2,6 +2,7 @@
 #include "test_utilities.h"
 
 int main() {
+
     RUN_TEST(testCreate);
     RUN_TEST(testModify);
     RUN_TEST(testModify2);
@@ -11,5 +12,6 @@ int main() {
     RUN_TEST(testContains);
     RUN_TEST(testGetAmount);
     RUN_TEST(testIteration);
+
     return 0;
 }

@@ -22,14 +22,42 @@ static void addElements(AmountSet set) {
     for (int i = 0; i < 7; ++i) {
         asRegister(set, ids + i);
     }
-    asChangeAmount(set, ids + 2, 10.5);
-    asChangeAmount(set, ids + 1, 3);
+    asChangeAmount(set, ids+6 , 1);
+    asChangeAmount(set, ids + 2, 2);
+    asChangeAmount(set, ids + 5, 3);
+    asChangeAmount(set, ids , 1000);
 
 }
-int main() {
+int main3() {
     AmountSet aviv = asCreate(copyInt,freeInt,compareInts);
-    //addElements(aviv);
+    addElements(aviv);
+    int k = -2;
+    asRegister(aviv,&k);
+    asChangeAmount(aviv, &k , 1500);
+    for(int i = 0;i<9;i++){
+        if(asGetFirst(aviv)==NULL){
+            break;
+        }
+        printf("deleting %d \n",*(int*)asGetFirst(aviv));
+        if(i==6){
+            int z = 7;
+            asChangeAmount(aviv, &z , 999);
+        }
+        asDelete(aviv,asGetFirst(aviv));
+    }
+
+
+    addElements(aviv);
+    int j = -2;
+    asRegister(aviv,&j);
+    asChangeAmount(aviv, &j , 1500);
+
+    asClear(aviv);
+
+
+    asDestroy(aviv);
     //asGetSize(aviv);
+    /*
     int i = 8;
     int j = 9;
     asRegister(aviv,&i);
@@ -52,5 +80,6 @@ int main() {
     asDestroy(aviv);
     aviv = NULL;
     printf("arrived here");
+     */
     return 0;
 }
