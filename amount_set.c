@@ -21,11 +21,25 @@ struct AmountSet_t{
 };
 
 ASListNode searchFor(AmountSet set, ASElement element){
+    if(set->first==NULL){
+        return NULL;
+    }
+    if(set->compareElements(set->first->value,element)==0) {
+        return set->first;
+    }
+    for(ASListNode i = set->first;(i->next)!=NULL;(i=i->next)){
+        if(set->compareElements(i->value,element)==0){
+            set->iterator = i;
+            return i;
+        }
+    }
+    /*
     AS_FOREACH(ASElement,i,set){
         if(set->compareElements(i,element) == 0){
             return set->iterator;
         }
     }
+     */
     return NULL;
 }
 
@@ -55,6 +69,7 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
         ASListNode temp = set->first;
         set->first = node;
         node->next = temp;
+        node->amount = 0;
         return AS_SUCCESS;
     }
     if (searchFor(set, element) != NULL) {
@@ -97,7 +112,7 @@ ASElement asGetFirst(AmountSet set) {
         return NULL;
     } else {
         set->iterator=set->first;
-        return set->first->value;
+        return set->copyElement(set->first->value);
     }
 }
 
@@ -154,12 +169,14 @@ ASElement asGetNext(AmountSet set){
     if(set==NULL){
         return NULL;
     }
-
+    if(set->iterator == NULL) {
+        return NULL;
+    }
     set->iterator = set->iterator->next;
     if(set->iterator == NULL) {
         return NULL;
     }
-    return set->iterator->value;
+    return set->copyElement(set->iterator->value);
 }
 
 AmountSetResult asClear(AmountSet set) {
@@ -169,20 +186,9 @@ AmountSetResult asClear(AmountSet set) {
     if(set->first == NULL){
         return AS_SUCCESS;
     }
-
-    ASListNode ptr = (set->first);
-    while(set->size>0||ptr!=NULL)
-    {
-        set->freeElement(ptr->value);
-        ASListNode toDelete = ptr;
-        ptr = ptr->next;
-        (set->size)--;
-        free(toDelete);
+    while(set->first != NULL){
+        asDelete(set,asGetFirst(set));
     }
-    set->size=0;
-    set->iterator = NULL;
-    set->first = NULL;
-    return AS_SUCCESS;
 }
 
 void asDestroy(AmountSet set){
@@ -190,9 +196,10 @@ void asDestroy(AmountSet set){
         return;
     }
     if((set->first)!=NULL) {
-        asClear(set); //destroys the list
+        asClear(set); //destroys the list without removing functions
     }
-    free(set); //frees AmountSet
+    free(set);//frees AmountSet
+    set = NULL;
 }
 
 int asGetSize(AmountSet set){
@@ -215,7 +222,9 @@ AmountSetResult asChangeAmount(AmountSet set, ASElement element, const double am
         return AS_NULL_ARGUMENT;
     }
     ASListNode node = searchFor(set,element);
-
+    if(node==NULL){
+        return AS_ITEM_DOES_NOT_EXIST;
+    }
     if(((node->amount)+amount)<0){
         return AS_INSUFFICIENT_AMOUNT;
     }
@@ -228,18 +237,39 @@ AmountSetResult asDelete(AmountSet set, ASElement element){
         return AS_NULL_ARGUMENT;
     }
     ASListNode node = searchFor(set,element);
-    if(node==NULL){
+    if(set->first == NULL || node==NULL){
         return AS_ITEM_DOES_NOT_EXIST;
     }
-    ASListNode item = set->first;
-    return AS_SUCCESS;
-    for(; !(item->next==NULL) ; item=item->next){ \
-        if(item->next==node){
-            item->next = node->next;
+    if(set->first == node && node->next == NULL ){
+        set->freeElement(node->value);
+        free(node);
+        set->first = NULL;
+        return AS_SUCCESS;
+    }
+    ASListNode beg = set->first;
+
+    if(beg==node){
+
+        set->first = beg->next;
+        if(set->first == NULL){
+
+        }
+        set->freeElement(beg->value);
+        free(beg);
+        (set->size)--;
+        return AS_SUCCESS;
+    }
+    while(beg->next != NULL){
+        if(beg->next == node){
+            beg->next = node->next;
             set->freeElement(node->value);
             free(node);
+            return AS_SUCCESS;
         }
+        beg=beg->next;
     }
+
+    return AS_SUCCESS;
 }
 
 AmountSetResult asGetAmount(AmountSet set, ASElement element, double *outAmount){
