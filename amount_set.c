@@ -20,14 +20,6 @@ struct AmountSet_t{
     int size;
 };
 
-static void copyNodeData(AmountSet set,ASListNode target, ASListNode source){
-    if(target==NULL || source==NULL || set==NULL){
-        return;
-    }
-    target->amount=source->amount;
-    target->value = set->copyElement(source->value);
-}
-
 ASListNode searchFor(AmountSet set, ASElement element){
     if(set->first==NULL){
         return NULL;
@@ -145,6 +137,14 @@ AmountSet asCreate(CopyASElement copyElement,
     return result;
 }
 
+
+static void copyNodeData(AmountSet set,ASListNode target, ASListNode source){
+    if(target==NULL || source==NULL || set==NULL){
+        return;
+    }
+    target->amount=source->amount;
+    target->value = set->copyElement(source->value);
+}
 
 AmountSet asCopy(AmountSet set){
     if(set == NULL){
