@@ -100,7 +100,7 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
 
 //assigns iterator to the first element of the set and returns the value of the first element.
 ASElement asGetFirst(AmountSet set) {
-    if (set==NULL || set->first==NULL) {
+    if (set==NULL || set->first==NULL || set->iterator==NULL) {
         return NULL;
     } else {
         set->iterator=set->first;
