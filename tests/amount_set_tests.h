@@ -12,5 +12,8 @@ bool testGetSize();
 bool testContains();
 bool testGetAmount();
 bool testIteration();
-
+//tests_by_aviv
+bool testSize();
+bool testSizeRepeats();
+bool testAdd();
 #endif /* AMOUNST_SET_TESTS_H_ */

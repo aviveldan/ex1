@@ -4,6 +4,12 @@
 #define NULL_POINTER_SENT -1
 #include "amount_set.h"
 #include <stdlib.h>
+#define myMalloc(type,pointer,return_value) \
+type pointer =  malloc(sizeof((*pointer))); \
+if((pointer)==NULL){ \
+return (return_value); \
+}
+
 
 typedef struct ASListNode_t {
     struct ASListNode_t* next;
@@ -21,25 +27,24 @@ struct AmountSet_t{
 };
 
 ASListNode searchFor(AmountSet set, ASElement element){
-    if(set->first==NULL){
+    if((set==NULL)||(set->first==NULL)){
         return NULL;
     }
+    
     if(set->compareElements(set->first->value,element)==0) {
         return set->first;
     }
-    for(ASListNode i = set->first;(i->next)!=NULL;(i=i->next)){
+    ASListNode i = set->first;
+    for(;(i->next)!=NULL;(i=i->next)){
+        //printf("COMPARING number %d to element: %d \n",*(int*)(i->value),*(int*)element);
         if(set->compareElements(i->value,element)==0){
-            set->iterator = i;
+            //set->iterator = i;
             return i;
         }
     }
-    /*
-    AS_FOREACH(ASElement,i,set){
-        if(set->compareElements(i,element) == 0){
-            return set->iterator;
-        }
+    if(i->next==NULL && (set->compareElements(i->value,element)==0)) {
+        return i;
     }
-     */
     return NULL;
 }
 
@@ -48,12 +53,8 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
         return AS_NULL_ARGUMENT;
     }
     if (set->first==NULL) {
-        ASListNode node =  malloc(sizeof(*node));
-        if(node==NULL){
-            return AS_OUT_OF_MEMORY;
-        }
+        myMalloc(ASListNode,node,AS_OUT_OF_MEMORY);
         set->first = node;
-        //set->iterator = node;
         node->amount = 0;
         node->value = set->copyElement(element);
         node->next=NULL;
@@ -61,10 +62,7 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
         return AS_SUCCESS;
     }
     if(set->compareElements(element,set->first->value)<0){
-        ASListNode node = malloc(sizeof(*node));
-        if (node == NULL) {
-            return AS_OUT_OF_MEMORY;
-        }
+        myMalloc(ASListNode,node,AS_OUT_OF_MEMORY);
         node->value = set->copyElement(element);
         ASListNode temp = set->first;
         set->first = node;
@@ -72,7 +70,7 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
         node->amount = 0;
         return AS_SUCCESS;
     }
-    if (searchFor(set, element) != NULL) {
+    if (asContains(set,element)) {
         return AS_ITEM_ALREADY_EXISTS;
     }
     set->iterator = set->first;
@@ -80,10 +78,7 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
     ASListNode previous = set->iterator;
     for(ASListNode current=set->iterator;current!=NULL;current=current->next) {
         if ((set->compareElements(element, current->value)) < 0) {
-            ASListNode node = malloc(sizeof(*node));
-            if (node == NULL) {
-                return AS_OUT_OF_MEMORY;
-            }
+            myMalloc(ASListNode,node,AS_OUT_OF_MEMORY);
             node->next = set->iterator;
             previous->next = node;
             node->value = set->copyElement(element);
@@ -95,10 +90,7 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
             previous = set->iterator;
         set->iterator = set->iterator->next;
     }
-    ASListNode node =  malloc(sizeof(*node));
-    if(node==NULL) {
-        return AS_OUT_OF_MEMORY;
-    }
+    myMalloc(ASListNode,node,AS_OUT_OF_MEMORY);
     (set->size)++;
     previous->next = node;
     node->value = set->copyElement(element);
@@ -122,10 +114,7 @@ AmountSet asCreate(CopyASElement copyElement,
     if(copyElement==NULL || freeElement == NULL || compareElements == NULL){
         return NULL;
     }
-    AmountSet result = malloc(sizeof(*result)); //Allocating new set
-    if(result==NULL){
-        return NULL;
-    }
+    myMalloc(AmountSet,result,NULL);
     result->copyElement=copyElement;
     result->freeElement=freeElement;
     result->compareElements=compareElements;
@@ -161,20 +150,14 @@ AmountSet asCopy(AmountSet set){
         result->first = NULL;
         return result;
     }
-    ASListNode newNode = malloc(sizeof(*newNode));
-    if(newNode==NULL){
-        return NULL;
-    }
+    myMalloc(ASListNode,newNode,NULL);
     copyNodeData(set,newNode,set->first);
     result->first = newNode;
     // Insert next items
     ASListNode set_next_item = set->first->next;
     while(set_next_item!=NULL){
-        ASListNode next_newNode = malloc(sizeof(*newNode));
+        myMalloc(ASListNode,next_newNode,NULL);
         newNode->next = next_newNode;
-        if(next_newNode==NULL){
-            return NULL;
-        }
         copyNodeData(set,next_newNode,set_next_item);
         set_next_item=set_next_item->next;
         newNode=newNode->next;
@@ -206,6 +189,8 @@ AmountSetResult asClear(AmountSet set) {
     while(set->first != NULL){
         asDelete(set,asGetFirst(set));
     }
+    set->size = 0;
+    return AS_SUCCESS;
 }
 
 void asDestroy(AmountSet set){
@@ -216,7 +201,6 @@ void asDestroy(AmountSet set){
         asClear(set); //destroys the list without removing functions
     }
     free(set);//frees AmountSet
-    set = NULL;
 }
 
 int asGetSize(AmountSet set){
@@ -285,7 +269,7 @@ AmountSetResult asDelete(AmountSet set, ASElement element){
 
     return AS_SUCCESS;
 }
-
+//CHECK WHY TEST FAILS
 AmountSetResult asGetAmount(AmountSet set, ASElement element, double *outAmount){
     if(set==NULL||element==NULL||outAmount==NULL){
         return AS_NULL_ARGUMENT;
