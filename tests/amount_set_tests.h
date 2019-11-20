@@ -15,5 +15,5 @@ bool testIteration();
 //tests_by_aviv
 bool testSize();
 bool testSizeRepeats();
-bool testAdd();
+bool testDelete1();
 #endif /* AMOUNST_SET_TESTS_H_ */

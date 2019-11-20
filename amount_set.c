@@ -36,9 +36,8 @@ ASListNode searchFor(AmountSet set, ASElement element){
     }
     ASListNode i = set->first;
     for(;(i->next)!=NULL;(i=i->next)){
-        //printf("COMPARING number %d to element: %d \n",*(int*)(i->value),*(int*)element);
         if(set->compareElements(i->value,element)==0){
-            //set->iterator = i;
+            set->iterator = i;
             return i;
         }
     }
@@ -100,11 +99,11 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
 
 //assigns iterator to the first element of the set and returns the value of the first element.
 ASElement asGetFirst(AmountSet set) {
-    if (set==NULL || set->first==NULL || set->iterator==NULL) {
+    if (set==NULL || set->first==NULL ||(set->first==NULL && set->iterator==NULL)) {
         return NULL;
     } else {
         set->iterator=set->first;
-        return set->copyElement(set->first->value);
+        return set->first->value;
     }
 }
 
@@ -172,11 +171,11 @@ ASElement asGetNext(AmountSet set){
     if(set->iterator == NULL) {
         return NULL;
     }
-    set->iterator = set->iterator->next;
-    if(set->iterator == NULL) {
+    if(set->iterator->next == NULL) {
         return NULL;
     }
-    return set->copyElement(set->iterator->value);
+    set->iterator = set->iterator->next;
+    return set->iterator->value;
 }
 
 AmountSetResult asClear(AmountSet set) {
@@ -198,7 +197,7 @@ void asDestroy(AmountSet set){
         return;
     }
     if((set->first)!=NULL) {
-        asClear(set); //destroys the list without removing functions
+        asClear(set); //destroys the list without removing function
     }
     free(set);//frees AmountSet
 }
@@ -221,6 +220,9 @@ bool asContains(AmountSet set, ASElement element){
 AmountSetResult asChangeAmount(AmountSet set, ASElement element, const double amount){
     if(set==NULL || element == NULL){
         return AS_NULL_ARGUMENT;
+    }
+    if(set->first==NULL){
+        return AS_ITEM_DOES_NOT_EXIST;
     }
     ASListNode node = searchFor(set,element);
     if(node==NULL){
@@ -245,23 +247,26 @@ AmountSetResult asDelete(AmountSet set, ASElement element){
         set->freeElement(node->value);
         free(node);
         set->first = NULL;
+        set->iterator =NULL;
+        (set->size)--;
         return AS_SUCCESS;
     }
     ASListNode beg = set->first;
 
-    if(beg==node){
-
-        set->first = beg->next;
-        set->freeElement(beg->value);
+    if(beg==node){//if wants to delete the first element but there is a next node
+        set->first = set->first->next; //next node is now the first
+        set->freeElement(beg->value); //free prev node
         free(beg);
         (set->size)--;
         return AS_SUCCESS;
     }
+    //save the value before
     while(beg->next != NULL){
         if(beg->next == node){
-            beg->next = node->next;
+            beg->next = node->next; //A->B->C will be changed to A->C
             set->freeElement(node->value);
             free(node);
+            (set->size)--;
             return AS_SUCCESS;
         }
         beg=beg->next;

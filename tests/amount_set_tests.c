@@ -150,6 +150,10 @@ bool testSizeRepeats(){
         asRegister(set,group+i);
     }
     ASSERT_TEST(asGetSize(set)==8);
+    for(int i = 0;i<16;i++){
+        asDelete(set,group+i);
+    }
+
     asDestroy(set);
     return true;
 }
@@ -166,21 +170,13 @@ bool testSize(){
     asDestroy(set);
     return true;
 }
-
-bool testAdd(){
+bool testDelete1(){
     AmountSet set = asCreate(copyInt, freeInt, compareInts);
-    int group[9] = {1,2,3,4,5,6,7,8,9};
-    for(int i = 0;i<9;i++){
-        asRegister(set,group+i);
+    addElements(set);
+    for(int i = 8;i>=0;i--){
+        asDelete(set,&i);
     }
-    int group2[3] = {-1,19,10};
-    for(int i = 0;i<3;i++){
-        asRegister(set,group2+i);
-    }
-
-    asChangeAmount(set,group2+1,24);
-    asGetAmount(set,(void*)((group2)+1),(void*)((group2)+1));
-
-    ASSERT_TEST(group2[1]==24);
+    ASSERT_TEST(asGetFirst(set)==NULL);
+    asDestroy(set);
     return true;
 }
