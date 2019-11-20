@@ -7,8 +7,12 @@
 #define myMalloc(type,pointer,return_value) \
 type pointer =  malloc(sizeof((*(pointer)))); \
 if((pointer)==NULL){ \
+malloc_allocs++;           \
 return (return_value); \
 }
+
+int malloc_allocs = 0;
+int frees = 0;
 
 typedef struct ASListNode_t {
     struct ASListNode_t* next;
@@ -30,7 +34,8 @@ static ASListNode createNode(AmountSet set,ASElement value,ASListNode next){
     }
     myMalloc(ASListNode,result,NULL);
     result->value=set->copyElement(value);
-    if(result->value == NULL){ //if copyElement failed to allocate memory
+    if(result->value == NULL){//if copyElement failed to allocate memory
+        set->freeElement(result->value);
         free(result);
         return NULL;
     }
@@ -129,7 +134,8 @@ ASElement asGetFirst(AmountSet set) {
         return NULL;
     } else {
         set->iterator=set->first;
-        return set->copyElement(set->first->value);
+        //return set->copyElement(set->first->value);
+        return set->first->value;
     }
 }
 
@@ -180,20 +186,6 @@ AmountSet asCopy(AmountSet set){
         asRegister(result,iterator->value);
         iterator=iterator->next;
     }
-    /*
-    myMalloc(ASListNode,newNode,NULL);
-    copyNodeData(set,newNode,set->first);
-    result->first = newNode;
-    // Insert next items
-    ASListNode set_next_item = set->first->next;
-    while(set_next_item!=NULL){
-        myMalloc(ASListNode,next_newNode,NULL);
-        newNode->next = next_newNode;
-        copyNodeData(set,next_newNode,set_next_item);
-        set_next_item=set_next_item->next;
-        newNode=newNode->next;
-    }
-     */
     return result;
 }
 
@@ -208,7 +200,8 @@ ASElement asGetNext(AmountSet set){
         return NULL;
     }
     set->iterator = set->iterator->next;
-    return set->copyElement(set->iterator->value);
+    //return set->copyElement(set->iterator->value);
+    return set->iterator->value;
 }
 
 //clearing the list as deleting first element over and over
@@ -220,6 +213,7 @@ AmountSetResult asClear(AmountSet set) {
         return AS_SUCCESS;
     }
     while(set->first != NULL){
+        //printf("removing %d\n",*(int*)set->first->value);
         asDelete(set,set->first->value);
     }
     set->size = 0;

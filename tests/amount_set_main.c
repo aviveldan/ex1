@@ -2,6 +2,7 @@
 #include "test_utilities.h"
 
 int main() {
+    RUN_TEST(testModify2);
     //RUN_TEST(testCopy);
     RUN_TEST(testCreate);
     RUN_TEST(testModify);
