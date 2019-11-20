@@ -26,6 +26,9 @@ struct AmountSet_t{
     int size;
 };
 
+
+//Searches an element in the list and returns a pointer to it.
+//will return NULL if element isn't in the list.
 ASListNode searchFor(AmountSet set, ASElement element){
     if((set==NULL)||(set->first==NULL)){
         return NULL;
@@ -47,10 +50,14 @@ ASListNode searchFor(AmountSet set, ASElement element){
     return NULL;
 }
 
+
+//adds a new element to the list if element isn't in the list.
+//keeps list sorted
 AmountSetResult asRegister(AmountSet set, ASElement element) {
     if (element==NULL) {
         return AS_NULL_ARGUMENT;
     }
+    //if no elements in the list
     if (set->first==NULL) {
         myMalloc(ASListNode,node,AS_OUT_OF_MEMORY);
         set->first = node;
@@ -60,6 +67,7 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
         (set->size)++;
         return AS_SUCCESS;
     }
+    //if element value is less then first element
     if(set->compareElements(element,set->first->value)<0){
         myMalloc(ASListNode,node,AS_OUT_OF_MEMORY);
         node->value = set->copyElement(element);
@@ -69,12 +77,16 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
         node->amount = 0;
         return AS_SUCCESS;
     }
+    //if element is in the list
     if (asContains(set,element)) {
         return AS_ITEM_ALREADY_EXISTS;
     }
+    //now element value is greater than the first in the list, and the list isn't empty:
     set->iterator = set->first;
-
     ASListNode previous = set->iterator;
+    //find where the element belongs:
+    //in example: element is *5* and list is 1,4,7
+    //list will now be 1,4,*5*,7
     for(ASListNode current=set->iterator;current!=NULL;current=current->next) {
         if ((set->compareElements(element, current->value)) < 0) {
             myMalloc(ASListNode,node,AS_OUT_OF_MEMORY);
@@ -89,6 +101,8 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
             previous = set->iterator;
         set->iterator = set->iterator->next;
     }
+    //element is greater than all existing element in list- so place it in the end
+    //previous now will point to the end of the list
     myMalloc(ASListNode,node,AS_OUT_OF_MEMORY);
     (set->size)++;
     previous->next = node;
@@ -178,6 +192,7 @@ ASElement asGetNext(AmountSet set){
     return set->iterator->value;
 }
 
+//clearing the list as deleting first element over and over
 AmountSetResult asClear(AmountSet set) {
     if(set==NULL){
         return AS_NULL_ARGUMENT;
@@ -191,6 +206,7 @@ AmountSetResult asClear(AmountSet set) {
     set->size = 0;
     return AS_SUCCESS;
 }
+
 
 void asDestroy(AmountSet set){
     if(set==NULL){
