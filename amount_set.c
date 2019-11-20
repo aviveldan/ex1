@@ -7,12 +7,10 @@
 #define myMalloc(type,pointer,return_value) \
 type pointer =  malloc(sizeof((*(pointer)))); \
 if((pointer)==NULL){ \
-malloc_allocs++;           \
 return (return_value); \
 }
 
-int malloc_allocs = 0;
-int frees = 0;
+
 
 typedef struct ASListNode_t {
     struct ASListNode_t* next;
@@ -158,13 +156,6 @@ AmountSet asCreate(CopyASElement copyElement,
 }
 
 
-static void copyNodeData(AmountSet set,ASListNode target, ASListNode source){
-    if(target==NULL || source==NULL || set==NULL){
-        return;
-    }
-    target->amount=source->amount;
-    target->value = set->copyElement(source->value);
-}
 
 AmountSet asCopy(AmountSet set){
     if(set == NULL){
@@ -303,7 +294,7 @@ AmountSetResult asDelete(AmountSet set, ASElement element){
 
     return AS_SUCCESS;
 }
-//CHECK WHY TEST FAILS
+
 AmountSetResult asGetAmount(AmountSet set, ASElement element, double *outAmount){
     if(set==NULL||element==NULL||outAmount==NULL){
         return AS_NULL_ARGUMENT;
