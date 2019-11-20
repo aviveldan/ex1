@@ -87,6 +87,7 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
         if(node==NULL){
             return AS_OUT_OF_MEMORY;
         }
+        set->first = node;
         (set->size)++;
         set->iterator=set->first;
         return AS_SUCCESS;
@@ -204,7 +205,6 @@ AmountSetResult asClear(AmountSet set) {
         return AS_SUCCESS;
     }
     while(set->first != NULL){
-        //printf("removing %d\n",*(int*)set->first->value);
         asDelete(set,set->first->value);
     }
     set->size = 0;

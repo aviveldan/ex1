@@ -68,9 +68,9 @@ static void addElements(AmountSet set) {
 
 bool testModify2() {
     AmountSet set = asCreate(copyInt, freeInt, compareInts);
-    addElements(set);
+    //addElements(set);
 
-    ASSERT_OR_DESTROY(asClear(set) == AS_SUCCESS);
+    //ASSERT_OR_DESTROY(asClear(set) == AS_SUCCESS);
     int x = 8, y = 3;
     ASSERT_OR_DESTROY(asRegister(set, &x) == AS_SUCCESS);
 
