@@ -5,6 +5,8 @@
 #include "matamazom.h"
 #include "set.h"
 #include "list.h"
+#include "amount_set.h"
+#include "../../../../cygwin64/usr/include/sys/types.h"
 
 
 typedef struct MatamazomProduct_t {
@@ -15,22 +17,47 @@ typedef struct MatamazomProduct_t {
 } *MatamazomProduct;
 
 typedef struct MatamazomOrder_t {
-
+    unsigned int orderId;
+    AmountSet products;
 } *MatamazomOrder;
 
 
 struct Matamazom_t{
-    MatamazomProduct first_product;
-    MatamazomOrder first_order;
+    AmountSet products;
+    List orders;
     int size;
-
 };
+
+static ListElement copyOrder(ListElement order) {
+    MatamazomOrder *copy = malloc(sizeof(*copy));
+    if (copy != NULL) {
+        copy->orderId = order->orderId;
+        copy->products = asCopy(order->products);
+        if(copy->products = NULL){
+            free(copy);
+            copy==NULL;
+        }
+    }
+    return copy;
+}
+
+static void freeInt(ListElement number) {
+    free(number); }
+
+static int compareInts(ListElement lhs, ListElement rhs) {
+    return (*(int *)lhs) - (*(int *)rhs);
+}
+
+unsigned int mtmCreateNewOrder(Matamazom matamazom){
+    if (matamazom->orders==NULL){
+        listCreate()
+    }
+}
 
 Matamazom matamazomCreate() {
     Matamazom matamazom = malloc(sizeof(*matamazom));
-    if
+    if(matamazom==NULL){
+        return NULL;
+    }
+    matamazom->orders = listCreate();
 }
-
-
-
-
