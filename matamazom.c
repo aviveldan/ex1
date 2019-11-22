@@ -42,12 +42,12 @@ static ListElement copyOrder(ListElement order) {
 }
 
 static void freeOrder(ListElement order) {
-    asDestroy(order->products)
-    free(number);
+    asDestroy(order->products);
+    free(order);
 }
 
-static int compareInts(ListElement lhs, ListElement rhs) {
-    return (*(int *)lhs) - (*(int *)rhs);
+static int compareOrders(ListElement lhs, ListElement rhs) {
+    return (*(int *)lhs->orderId) - (*(int *)rhs->orderId);
 }
 
 unsigned int mtmCreateNewOrder(Matamazom matamazom){
