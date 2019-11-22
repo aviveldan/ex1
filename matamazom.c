@@ -41,8 +41,10 @@ static ListElement copyOrder(ListElement order) {
     return copy;
 }
 
-static void freeInt(ListElement number) {
-    free(number); }
+static void freeOrder(ListElement order) {
+    asDestroy(order->products)
+    free(number);
+}
 
 static int compareInts(ListElement lhs, ListElement rhs) {
     return (*(int *)lhs) - (*(int *)rhs);
