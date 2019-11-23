@@ -3,42 +3,14 @@
 //
 #include "stdlib.h"
 #include "matamazom.h"
-#include "set.h"
 #include "list.h"
 #include "amount_set.h"
+
+
 typedef enum OrderOrProduct_t {
     PRODUCT = 0,
     ORDER = 1,
 } OrderOrProduct;
-
-
-
-
-
-//Order static functions:
-static ListElement copyOrder(ListElement order_t);
-static void freeOrder(ListElement order_t);
-static int compareOrders(ListElement lhs, ListElement rhs);
-
-/*
-Function for validating id of order/product in order.
-id_type: For order/product use keyword ORDER/PRODUCT
-output_ptr: If you also wants to know the address of the found order - pass an output pointer.
-just pass NULL to output_ptr if you do not need.
- */
-static bool isValidId(List orders, unsigned int Id, OrderOrProduct id_type,ListElement* output_ptr);
-static unsigned int getOrderId(ListElement order_t);
-
-//String static functions:
-static int string_length (const char *string);
-static char* string_copy(const char* source, char* destination);
-//Product static functions:
-static ASElement copyProduct(ASElement product_t);
-static void freeProduct(ASElement product_t);
-static int compareProducts(ASElement lhs, ASElement rhs);
-
-//lior needs to implement this function:
-bool isValidAmount(Matamazom matamazom,unsigned int productId,const double amount);
 
 
 
@@ -55,20 +27,57 @@ typedef struct MatamazomProduct_t {
     double income;
 } *MatamazomProduct;
 
-
-
 typedef struct MatamazomOrder_t {
     unsigned int orderId;
-    AmountSet products;
+    AmountSet products; //allocated
 } *MatamazomOrder;
 
-
 struct Matamazom_t {
-    AmountSet products;
-    List orders;
-    int size;
-
+    AmountSet products; //allocated
+    List orders; //allocated
+    unsigned int currentId;
+    double income;
 };
+
+
+
+
+
+
+//Order static functions:
+static ListElement copyOrder(ListElement order_t);
+static void freeOrder(ListElement order_t);
+static int compareOrders(ListElement lhs, ListElement rhs);
+static bool newOrder(Matamazom matamazom, MatamazomOrder* target);
+
+//ProductID static functions:
+static ASElement copyProductId(ASElement productid_t);
+static void freeProductId(ASElement productid_t);
+static int compareProductsIds(ASElement lhs, ASElement rhs);
+/*
+Function for validating id of order/product in order.
+id_type: For order/product use keyword ORDER/PRODUCT
+output_ptr: If you also wants to know the address of the found order - pass an output pointer.
+just pass NULL to output_ptr if you do not need.
+ */
+static bool isValidId(List orders, unsigned int Id, OrderOrProduct id_type,ListElement* output_ptr);
+static unsigned int getOrderId(ListElement order_t);
+
+//String static functions:
+static int string_length (const char *string);
+static char* string_copy(const char* source, char* destination);
+
+//Product static functions:
+static ASElement copyProduct(ASElement product_t);
+static void freeProduct(ASElement product_t);
+static int compareProducts(ASElement lhs, ASElement rhs);
+
+//lior needs to implement this function:
+bool isValidAmount(Matamazom matamazom,unsigned int productId,const double amount);
+
+
+
+
 
 //implementing strings copy and strings length
 static char* string_copy(const char* source, char* destination) {
@@ -135,7 +144,11 @@ static int compareProducts(ASElement lhs, ASElement rhs) {
 }
 
 
+
+
 //Order functions:
+
+
 static ListElement copyOrder(ListElement order_t) {
     MatamazomOrder order = order_t;
     MatamazomOrder copy = malloc(sizeof(*copy));
@@ -161,13 +174,35 @@ static int compareOrders(ListElement lhs, ListElement rhs) {
     MatamazomOrder right = rhs;
     return (int)((left->orderId)-(right->orderId));
 }
-/*
-unsigned int mtmCreateNewOrder(Matamazom matamazom){
-    if (matamazom->orders==NULL){
-        return
+
+static bool newOrder(Matamazom matamazom, MatamazomOrder* target){
+    MatamazomOrder temp = malloc(sizeof(*temp));
+    if(temp == NULL){
+        return false;
     }
+    temp->products = asCreate(copyProductId,freeProductId,compareProductsIds);
+    if(temp->products == NULL){
+        free(temp);
+        return false;
+    }
+    temp->orderId = ++(matamazom->currentId);
+    *target = temp;
+    return true;
 }
-*/
+
+unsigned int mtmCreateNewOrder(Matamazom matamazom){
+    if(matamazom == NULL){
+        return 0;
+    }
+    MatamazomOrder new_order = NULL;
+    newOrder(matamazom,&new_order);
+    if(new_order == false){
+        return 0;
+    }
+    listInsertLast(matamazom->orders,(ListElement)new_order);
+    return new_order->orderId;
+}
+
 
 
 Matamazom matamazomCreate() {
@@ -226,25 +261,27 @@ static unsigned int getOrderId(ListElement order_t){
 
 
 
-static bool isValidId(List orders, unsigned int Id, OrderOrProduct id_type,ListElement* output_ptr){
+static bool isValidId(List orders, unsigned int id, OrderOrProduct id_type,ListElement* output_ptr){
     //assert(id_type = ORDER || id_type == PRODUCT);
     LIST_FOREACH(ListElement,i,orders){
         MatamazomOrder current = i;
         switch (id_type){
             case PRODUCT:
-                if(asContains(current->products,&Id)){
+                if(asContains(current->products,&id)){
                     if(output_ptr!=NULL){
                         *output_ptr = i;
                     }
                     return true;
                 }
             case ORDER:
-                if(getOrderId(i)==Id){
+                if(getOrderId(i)==id){
                     if(output_ptr!=NULL){
                         *output_ptr = i;
                     }
                     return true;
                 }
+            default:
+                return false;
         }
     }
     return false;
@@ -262,7 +299,7 @@ MatamazomResult mtmCancelOrder(Matamazom matamazom, const unsigned int orderId){
     }
 
     LIST_FOREACH(ListElement,i,matamazom->orders){
-        if(order==i){
+        if(compareOrders(order,i)){
             listRemoveCurrent(list);
             return MATAMAZOM_SUCCESS;
         }
@@ -272,6 +309,20 @@ MatamazomResult mtmCancelOrder(Matamazom matamazom, const unsigned int orderId){
 
 
 
+
+static ASElement copyProductId(ASElement productid_t) {
+    unsigned int *copy = malloc(sizeof(*copy));
+    if (copy != NULL) {
+        *copy = *(unsigned int *)productid_t;
+    }
+    return copy;
+}
+static void freeProductId(ASElement productid_t) {
+    free(productid_t); }
+
+static int compareProductsIds(ASElement lhs, ASElement rhs) {
+    return (int)((*(unsigned int *)lhs) - (*(unsigned int *)rhs));
+}
 
 
 
