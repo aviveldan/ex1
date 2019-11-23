@@ -5,7 +5,7 @@
 #include "matamazom.h"
 #include "list.h"
 #include "amount_set.h"
-
+#include <assert.h>
 
 typedef enum OrderOrProduct_t {
     PRODUCT = 0,
@@ -269,7 +269,7 @@ MatamazomResult mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigne
 
     int asChangeAmountReturns = asChangeAmount(actual_order->products,(ASElement)&productId,amount);
 
-    //assert(asChangeAmountReturns == AS_SUCCESS); //needs to learn how to use assert
+    assert(asChangeAmountReturns == AS_SUCCESS); //needs to learn how to use assert
 
     return MATAMAZOM_SUCCESS;
 }
@@ -285,7 +285,7 @@ static unsigned int getOrderId(ListElement order_t){
 
 
 static bool isValidId(List orders, unsigned int id, OrderOrProduct id_type,ListElement* output_ptr){
-    //assert(id_type = ORDER || id_type == PRODUCT);
+    assert(id_type == ORDER || id_type == PRODUCT);
     LIST_FOREACH(ListElement,i,orders){
         MatamazomOrder current = i;
         switch (id_type){
@@ -364,9 +364,7 @@ MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId){
         double current_amount = 0;
         unsigned int current_product_id = *(unsigned int*)i;
         //get amount from the product AmountSet
-        if(asGetAmount(actual_order->products,i,&current_amount) != AS_SUCCESS){
-            printf("Problem Occurred\n");
-        }
+        assert(asGetAmount(actual_order->products,i,&current_amount) == AS_SUCCESS);
         if(current_amount>getProductAmount(matamazom,current_product_id)){
             return MATAMAZOM_INSUFFICIENT_AMOUNT;
         }
@@ -413,7 +411,7 @@ static double totalOrderPrice(Matamazom matamazom, MatamazomOrder orderId){
     AS_FOREACH(ASElement,i,products){
         unsigned int current_product = *(int*)i;
         double current_product_amount = 0;
-        asGetAmount(products,i,&current_product_amount);
+        assert(asGetAmount(products,i,&current_product_amount)==AS_SUCCESS);
         sum+=(evaluatePrice(matamazom,current_product,current_product_amount));
     }
     return sum;
