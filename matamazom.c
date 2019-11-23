@@ -49,6 +49,7 @@ static ListElement copyOrder(ListElement order_t);
 static void freeOrder(ListElement order_t);
 static int compareOrders(ListElement lhs, ListElement rhs);
 static bool newOrder(Matamazom matamazom, MatamazomOrder* target);
+static double totalOrderPrice(Matamazom matamazom, MatamazomOrder orderId);
 
 //ProductID static functions:
 static ASElement copyProductId(ASElement productid_t);
@@ -73,10 +74,12 @@ static void freeProduct(ASElement product_t);
 static int compareProducts(ASElement lhs, ASElement rhs);
 
 //lior needs to implement this function:
-bool isValidAmount(Matamazom matamazom,unsigned int productId,const double amount);
+static bool isValidAmount(MatamazomProduct product,const double amount);
+static double getProductAmount(Matamazom matamazom,unsigned int product_id);
 
-
-
+//aviv needs:
+static MatamazomResult checkoutItem(Matamazom matamazom, unsigned int product_id,const double amount);
+static double evaluatePrice(Matamazom matamazom, unsigned int product_id, const double amount);
 
 
 //implementing strings copy and strings length
@@ -237,7 +240,15 @@ void matamazomDestroy(Matamazom matamazom){
     free(matamazom);
 }
 
-
+static MatamazomProduct getProductById(Matamazom matamazom ,const unsigned int productId){
+    AS_FOREACH(ASElement,i,matamazom->products){
+        MatamazomProduct currentProduct = i;
+        if(currentProduct->product_id == productId){
+            return currentProduct;
+        }
+    }
+    return NULL;
+}
 
 MatamazomResult mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigned int orderId,
                                               const unsigned int productId, const double amount){
@@ -251,7 +262,7 @@ MatamazomResult mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigne
     if(!isValidId(matamazom->orders,productId,PRODUCT,&searched_ptr)){
         return MATAMAZOM_PRODUCT_NOT_EXIST;
     }
-    if(!isValidAmount (matamazom, productId, amount)){
+    if(!isValidAmount(getProductById(matamazom, productId), amount)){
         return MATAMAZOM_INVALID_AMOUNT;
     }
     MatamazomOrder actual_order = searched_ptr;
@@ -337,5 +348,73 @@ static int compareProductsIds(ASElement lhs, ASElement rhs) {
 }
 
 
+MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId){
+    if(matamazom==NULL){
+        MATAMAZOM_NULL_ARGUMENT;
+    }
+    ListElement order = NULL;
+    if(!isValidId(matamazom->orders,orderId,ORDER,&order)){
+        MATAMAZOM_ORDER_NOT_EXIST;
+    }
+    //now order variable contains the ListElement of the shipped order.
+    MatamazomOrder actual_order = order;
 
+    //iterate over the order's products and check if amount is valid(in warehouse)
+    AS_FOREACH(ASElement,i,actual_order->products){
+        double current_amount = 0;
+        unsigned int current_product_id = *(unsigned int*)i;
+        //get amount from the product AmountSet
+        if(asGetAmount(actual_order->products,i,&current_amount) != AS_SUCCESS){
+            printf("Problem Occurred\n");
+        }
+        if(current_amount>getProductAmount(matamazom,current_product_id)){
+            return MATAMAZOM_INSUFFICIENT_AMOUNT;
+        }
 
+    }
+    //iterate over the order's products and both change amount in warehouse and add income
+    AS_FOREACH(ASElement,i,actual_order->products){
+        double current_amount = 0;
+        unsigned int current_product_id = *(unsigned int*)i;
+        //get amount from the product AmountSet
+        checkoutItem(matamazom,current_product_id,current_amount);
+    }
+    mtmCancelOrder(matamazom,orderId);
+    return MATAMAZOM_SUCCESS;
+}
+
+static MatamazomResult checkoutItem(Matamazom matamazom, unsigned int product_id,const double amount){
+    MatamazomResult result = mtmChangeProductAmount(matamazom,product_id,amount);
+    if (result!=MATAMAZOM_SUCCESS){
+        return result;
+    }
+    double income = evaluatePrice(matamazom,product_id,amount);
+    matamazom->income += income;
+    MatamazomProduct product = getProductById(matamazom,product_id);
+    product->income += income;
+    return MATAMAZOM_SUCCESS;
+}
+
+static double evaluatePrice(Matamazom matamazom, unsigned int product_id, const double amount){
+    double price = 0;
+    AmountSet products = matamazom->products;
+    AS_FOREACH(ASElement, i, products){
+        MatamazomProduct current_product = i;
+        if(current_product->product_id == product_id){
+            price = current_product->prodPrice(current_product->customData,amount);
+        }
+    }
+    return price;
+}
+
+static double totalOrderPrice(Matamazom matamazom, MatamazomOrder orderId){
+    double sum = 0;
+    AmountSet products = orderId->products;
+    AS_FOREACH(ASElement,i,products){
+        unsigned int current_product = *(int*)i;
+        double current_product_amount = 0;
+        asGetAmount(products,i,&current_product_amount);
+        sum+=(evaluatePrice(matamazom,current_product,current_product_amount));
+    }
+    return sum;
+}
