@@ -18,7 +18,7 @@ typedef struct ASListNode_t {
     double amount;
 } *ASListNode;
 
-struct AmountSet_t{
+struct AmountSet_t {
     ASListNode first;
     CopyASElement copyElement;
     FreeASElement freeElement;

@@ -52,6 +52,7 @@ typedef struct MatamazomProduct_t {
     MtmCopyData copyData;
     MtmFreeData freeData;
     MtmGetProductPrice prodPrice;
+    double income;
 } *MatamazomProduct;
 
 
@@ -68,10 +69,6 @@ struct Matamazom_t {
     int size;
 
 };
-
-
-
-
 
 //implementing strings copy and strings length
 static char* string_copy(const char* source, char* destination) {
@@ -96,13 +93,18 @@ static int string_length (const char *string) {
     return i;
 }
 
+static MatamazomProduct createNewProduct() {
+
+}
 
 MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const char *name,
                               const double amount, const MatamazomAmountType amountType,
                               const MtmProductData customData, MtmCopyData copyData,
                               MtmFreeData freeData, MtmGetProductPrice prodPrice) {
 
+    MatamazomProduct product = malloc();
 
+    asRegister(matamazom->products, product);
 }
 
 
@@ -133,8 +135,6 @@ static int compareProducts(ASElement lhs, ASElement rhs) {
 }
 
 
-
-
 //Order functions:
 static ListElement copyOrder(ListElement order_t) {
     MatamazomOrder order = order_t;
@@ -142,7 +142,7 @@ static ListElement copyOrder(ListElement order_t) {
     if (copy != NULL) {
         copy->orderId = order->orderId;
         copy->products = asCopy(order->products);
-        if(copy->products == NULL){
+        if(copy->products == NULL) {
             free(copy);
             copy=NULL;
         }
@@ -176,14 +176,17 @@ Matamazom matamazomCreate() {
         return NULL;
     }
     //Creating a products set:
-
-
-
+    matamazom->products = asCreate(copyProduct, freeProduct, compareProducts);
+    if (matamazom->products == NULL) {
+            free(matamazom);
+            return NULL;
+    }
 
     //Creating an orders list:
     matamazom->orders = listCreate(copyOrder,freeOrder);
     if(matamazom->orders == NULL){
         free(matamazom); //didn't forget HAHA
+        asDestroy(matamazom->products);
         return NULL;
     }
     return matamazom;
