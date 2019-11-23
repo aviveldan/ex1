@@ -227,6 +227,18 @@ Matamazom matamazomCreate() {
     return matamazom;
 }
 
+
+void matamazomDestroy(Matamazom matamazom){
+    if(matamazom==NULL){
+        return;
+    }
+    listDestroy(matamazom->orders);
+    asDestroy(matamazom->products);
+    free(matamazom);
+}
+
+
+
 MatamazomResult mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigned int orderId,
                                               const unsigned int productId, const double amount){
     ListElement searched_ptr = NULL;
