@@ -37,7 +37,7 @@ static ASListNode createNode(AmountSet set,ASElement value,ASListNode next){
         free(result);
         return NULL;
     }
-    result->amount=0;
+    result->amount = 0;
     result->next=next;
     return result;
 }
