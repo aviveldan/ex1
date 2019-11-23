@@ -57,6 +57,8 @@ static void freeOrder(ListElement order_t);
 static int compareOrders(ListElement lhs, ListElement rhs);
 static bool newOrder(Matamazom matamazom, MatamazomOrder* target);
 static double totalOrderPrice(Matamazom matamazom, MatamazomOrder orderId);
+static double evaluatePrice(Matamazom matamazom, unsigned int product_id, const double amount);
+
 
 //ProductID static functions:
 static ASElement copyProductId(ASElement productid_t);
@@ -345,7 +347,8 @@ MatamazomResult mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigne
     if(!isValidId(matamazom->orders,productId,PRODUCT,&searched_ptr)){
         return MATAMAZOM_PRODUCT_NOT_EXIST;
     }
-    if(!isValidAmount(getProductById(matamazom, productId), amount)){
+    MatamazomProduct product = getProductById(matamazom, productId);
+    if(!isValidAmount(product->amountType, amount)){
         return MATAMAZOM_INVALID_AMOUNT;
     }
     MatamazomOrder actual_order = searched_ptr;
