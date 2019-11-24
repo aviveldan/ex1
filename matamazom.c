@@ -6,6 +6,7 @@
 #include "list.h"
 #include "amount_set.h"
 #include <assert.h>
+#include "matamazom_print.h"
 
 #define END_OF_STRING '\0'
 #define FIRST_LOWER 'a'
@@ -211,13 +212,20 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
     if (asRegister(matamazom->products, newProduct) == AS_OUT_OF_MEMORY) {
         return MATAMAZOM_OUT_OF_MEMORY;
     }
+    MatamazomProduct item = asGetFirst(matamazom->products);
     asChangeAmount(matamazom->products, newProduct, amount);
+
+    //***Test bug: after inserting first element, all his functions( copyData, freeData, prodPrice ) are NULL!
+    //***check it by putting a breakpoint after this line
+    //Probably will be fixed after fixing copyProduct function.
+    //MatamazomProduct item = asGetFirst(matamazom->products);
+
 
     return MATAMAZOM_SUCCESS;
 
 }
 
-
+//***Forgot to copy customData, copyData, freeData, prodPrice!
 static ASElement copyProduct(ASElement product_t) {
     MatamazomProduct product = product_t;
     MatamazomProduct copy = malloc(sizeof(*copy));
@@ -362,18 +370,22 @@ MatamazomResult mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigne
     if(matamazom == NULL){
         return MATAMAZOM_NULL_ARGUMENT;
     }
-    if(!isValidId(matamazom->orders,orderId,ORDER,&searched_ptr)){
+    if(!isValidId(matamazom,orderId,ORDER,&searched_ptr)){
         return MATAMAZOM_ORDER_NOT_EXIST;
     }
-    if(!isValidId(matamazom->orders,productId,PRODUCT,&searched_ptr)){
+    /*
+    if(!isValidId(matamazom,productId,PRODUCT,&searched_ptr)){
         return MATAMAZOM_PRODUCT_NOT_EXIST;
     }
+     */
     MatamazomProduct product = getProductById(matamazom, productId);
     if(!isValidAmount(product->amountType, amount)){
         return MATAMAZOM_INVALID_AMOUNT;
     }
     MatamazomOrder actual_order = searched_ptr;
-
+    if(!asContains(actual_order->products,&productId)){
+        asRegister(actual_order->products,&productId);
+    }
     int asChangeAmountReturns = asChangeAmount(actual_order->products,(ASElement)&productId,amount);
 
     assert(asChangeAmountReturns == AS_SUCCESS); //needs to learn how to use assert
@@ -398,8 +410,9 @@ static bool isValidId(Matamazom matamazom, unsigned int id, OrderOrProduct id_ty
         switch (id_type){
             case PRODUCT:
                 if(true){
-                    MatamazomProduct product = getProductById(matamazom,id);
-                    if(asContains(current->products,product)) {
+                    //unsigned int first =*((unsigned int*)asGetFirst(current->products));
+                    //MatamazomProduct product = getProductById(matamazom,id);
+                    if(asContains(current->products,&id)) {
                         if (output_ptr != NULL) {
                             *output_ptr = i;
                         }
@@ -536,4 +549,35 @@ static double getProductAmount(Matamazom matamazom, unsigned int product_id){
     int getAmountResult = asGetAmount(matamazom->products,product,&amount);
     assert(getAmountResult == AS_SUCCESS);
     return amount;
+}
+
+
+MatamazomResult mtmPrintOrder(Matamazom matamazom, const unsigned int orderId, FILE *output){
+    ListElement order = NULL;
+    if(matamazom == NULL || output == NULL){
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    if(!isValidId(matamazom,orderId,ORDER,&order)){
+        return MATAMAZOM_ORDER_NOT_EXIST;
+    }
+
+    mtmPrintOrderHeading(orderId,output);
+    //AS of order's products:
+    AmountSet products_in_order = ((MatamazomOrder)order)->products;
+
+    double total_price = 0;
+    AS_FOREACH(ASElement,i,products_in_order){
+        //Current product details:
+        unsigned int product_id = *(unsigned int*)i;
+        double amount_in_order = 0;
+        int asResult =  asGetAmount(products_in_order,i,&amount_in_order);
+        double price_for_product = evaluatePrice(matamazom,product_id,amount_in_order);
+        assert(asResult==AS_SUCCESS);
+        MatamazomProduct product = getProductById(matamazom,product_id);
+        //Print details to file
+        mtmPrintProductDetails(product->name,product_id,amount_in_order,price_for_product,output);
+        total_price += price_for_product;
+    }
+    //Print order summary
+    mtmPrintOrderSummary(total_price,output);
 }

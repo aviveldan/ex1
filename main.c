@@ -25,6 +25,10 @@ int main(){
     printf("id: %d\n",id);
     int result = mtmChangeProductAmountInOrder(aviv,1,4,3);
     printf("result: %d\n",result);
+    FILE* my_file = fopen("my_file.txt","w");
+    mtmPrintOrder(aviv,1,my_file);
+    fclose(my_file);
     matamazomDestroy(aviv);
+
     return 0;
 }
