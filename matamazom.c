@@ -92,9 +92,7 @@ static char* string_copy(const char* source, char* destination);
 static ASElement copyProduct(ASElement product_t);
 static void freeProduct(ASElement product_t);
 static int compareProducts(ASElement lhs, ASElement rhs);
-
-//lior needs to implement this function:
-static double getProductAmount(Matamazom matamazom,unsigned int product_id);
+static double getProductAmount(Matamazom matamazom,unsigned int product_id); //already implemented
 
 
 
