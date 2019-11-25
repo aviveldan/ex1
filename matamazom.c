@@ -85,8 +85,8 @@ static bool isValidId(Matamazom matamazom, unsigned int Id, OrderOrProduct id_ty
 static unsigned int getOrderId(ListElement order_t);
 
 //String static functions:
-static int string_length (const char *string);
-static char* string_copy(const char* source, char* destination);
+static int stringLength (const char *string);
+static char* stringCopy(const char* source, char* destination);
 
 //Product static functions:
 static ASElement copyProduct(ASElement product_t);
@@ -132,7 +132,7 @@ static double evaluatePrice(Matamazom matamazom, unsigned int product_id, const 
 
 
 //implementing strings copy and strings length
-static char* string_copy(const char* source, char* destination) {
+static char* stringCopy(const char* source, char* destination) {
     if (destination == NULL) {
         return NULL;
     }
@@ -146,7 +146,7 @@ static char* string_copy(const char* source, char* destination) {
     return ptr;
 }
 
-static int string_length (const char *string) {
+static int stringLength (const char *string) {
     int i=0;
     while (string[i] != END_OF_STRING) {
         i++;
@@ -197,9 +197,10 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
         return MATAMAZOM_PRODUCT_ALREADY_EXIST;
     }
 
-    //***allocate memory for name field before calling string_copy***
     newProduct->product_id = id;
-    string_copy(name, newProduct->name);
+    int nameLength = stringLength(name);
+    newProduct->name = malloc(sizeof(nameLength));
+    stringCopy(name, newProduct->name);
     newProduct->amountType = amountType;
     newProduct->customData = copyData(customData);
     newProduct->copyData = copyData;
@@ -213,9 +214,6 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
     MatamazomProduct item = asGetFirst(matamazom->products);
     asChangeAmount(matamazom->products, newProduct, amount);
 
-    //***Test bug: after inserting first element, all his functions( copyData, freeData, prodPrice ) are NULL!
-    //***check it by putting a breakpoint after this line
-    //Probably will be fixed after fixing copyProduct function.
     //MatamazomProduct item = asGetFirst(matamazom->products);
 
 
@@ -223,15 +221,18 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
 
 }
 
-//***Forgot to copy customData, copyData, freeData, prodPrice!
 static ASElement copyProduct(ASElement product_t) {
     MatamazomProduct product = product_t;
     MatamazomProduct copy = malloc(sizeof(*copy));
     copy->product_id = product->product_id;
-    char *copy_name = malloc(sizeof(string_length(product->name)));
-    string_copy(copy_name, copy->name);
+    char *copy_name = malloc(sizeof(stringLength(product->name)));
+    stringCopy(copy_name, copy->name);
     copy->amountType = product->amountType;
+    copy->copyData = product->copyData;
+    copy->freeData = product->freeData;
+    copy->prodPrice = product->prodPrice;
     copy->customData = product->copyData(product->customData);
+
     return copy;
 }
 
