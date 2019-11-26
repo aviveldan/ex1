@@ -104,7 +104,7 @@ bool isValidAmount(MatamazomAmountType type, const double amount) {
     }
     if(type==MATAMAZOM_HALF_INTEGER_AMOUNT) {
         if(difference<=LEGAL_DIFFERENCE || (1-difference)<LEGAL_DIFFERENCE||
-            absolute(difference-HALF)<LEGAL_DIFFERENCE) {
+           absolute(difference-HALF)<LEGAL_DIFFERENCE) {
             return true;
         }
     }
@@ -144,7 +144,6 @@ static int stringLength (const char *string) {
 }
 
 static bool isNameValid(const char *name) {
-    int i=0;
     if (*name!=END_OF_STRING||((*name<=LAST_UPPER)&&(*name>=FIRST_UPPER))||((*name<=LAST_LOWER)&&(*name>=FIRST_LOWER))
         ||((*name<=NINE)&&(*name>=0))) {
         return 1;
@@ -165,10 +164,9 @@ static bool idExists(Matamazom matamazom, unsigned int id) {
 }
 
 
-MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const char *name,
-                              const double amount, const MatamazomAmountType amountType,
-                              const MtmProductData customData, MtmCopyData copyData,
-                              MtmFreeData freeData, MtmGetProductPrice prodPrice) {
+MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const char *name, const double amount,
+                              const MatamazomAmountType amountType, const MtmProductData customData,
+                              MtmCopyData copyData, MtmFreeData freeData, MtmGetProductPrice prodPrice) {
 
     MatamazomProduct newProduct = malloc(sizeof(*newProduct));
     if (newProduct == NULL) {
@@ -196,6 +194,7 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
     newProduct->copyData = copyData;
     newProduct->freeData = freeData;
     newProduct->prodPrice = prodPrice;
+    newProduct->income = 0;
 
     if (asRegister(matamazom->products, newProduct) == AS_OUT_OF_MEMORY) {
         return MATAMAZOM_OUT_OF_MEMORY;
@@ -222,6 +221,7 @@ static ASElement copyProduct(ASElement product_t) {
     copy->freeData = product->freeData;
     copy->prodPrice = product->prodPrice;
     copy->customData = product->copyData(product->customData);
+    copy->income = product->income;
 
     return copy;
 }
@@ -338,8 +338,8 @@ Matamazom matamazomCreate() {
     //Creating a products set:
     matamazom->products = asCreate(copyProduct, freeProduct, compareProducts);
     if (matamazom->products == NULL) {
-            free(matamazom);
-            return NULL;
+        free(matamazom);
+        return NULL;
     }
     //Creating an orders list:
     matamazom->orders = listCreate(copyOrder,freeOrder);
@@ -549,8 +549,56 @@ static double getProductAmount(Matamazom matamazom, unsigned int product_id){
     return amount;
 }
 
-MatamazomResult mtmPrintInventory(Matamazom matamazom, FILE *output) {
+//product printing functions:
 
+MatamazomResult mtmPrintInventory(Matamazom matamazom, FILE *output) {
+    if(matamazom==NULL || output == NULL) {
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    printf("Inventory Status:");
+    AS_FOREACH(MatamazomProduct, iterator, matamazom->products) {
+        MatamazomProduct product = iterator;
+        double productAmount = 0;
+        asGetAmount(matamazom->products, product, &productAmount);
+        double productPrice = product->prodPrice(product, 1);
+        mtmPrintProductDetails(product->name, product->product_id, productAmount, productPrice, output);
+    }
+    return MATAMAZOM_SUCCESS;
+}
+
+MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output) {
+    if (matamazom == NULL || output == NULL) {
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    printf("Best Selling Product:");
+    double highestIncome = 0;
+    MatamazomProduct highestProduct = asGetFirst(matamazom->products);
+    AS_FOREACH(MatamazomProduct, iterator, matamazom->products) {
+        MatamazomProduct product = iterator;
+        if (product->income>highestIncome) {
+            highestIncome = product->income;
+            highestProduct = product;
+        }
+    }
+    mtmPrintIncomeLine(highestProduct->name, highestProduct->product_id, highestIncome, output);
+    return MATAMAZOM_SUCCESS;
+}
+
+MatamazomResult mtmPrintFiltered(Matamazom matamazom, MtmFilterProduct customFilter, FILE *output) {
+    if (matamazom == NULL || output == NULL) {
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    Matamazom filteredMatamazom = matamazomCreate();
+    AS_FOREACH(MatamazomProduct, iterator, matamazom->products) {
+        MatamazomProduct product = iterator;
+        double productAmount = getProductAmount(matamazom, product->product_id);
+        if (customFilter(product->product_id, product->name, productAmount, product->customData)) {
+            mtmNewProduct(filteredMatamazom, product->product_id, product->name, productAmount, product->amountType,
+                          product->customData, product->copyData, product->freeData, product->prodPrice);
+        }
+    }
+    mtmPrintInventory(filteredMatamazom, output);
+    matamazomDestroy(filteredMatamazom);
 }
 
 
