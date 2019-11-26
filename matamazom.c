@@ -8,6 +8,7 @@
 #include <assert.h>
 #include "matamazom_print.h"
 
+
 #define END_OF_STRING '\0'
 #define FIRST_LOWER 'a'
 #define LAST_LOWER 'z'
@@ -62,6 +63,8 @@ static int compareOrders(ListElement lhs, ListElement rhs);
 static bool newOrder(Matamazom matamazom, MatamazomOrder* target);
 static double totalOrderPrice(Matamazom matamazom, MatamazomOrder orderId);
 static double evaluatePrice(Matamazom matamazom, unsigned int product_id, const double amount);
+static MatamazomResult checkoutItem(Matamazom matamazom, unsigned int product_id,const double amount);
+
 
 
 //ProductID static functions:
@@ -126,9 +129,6 @@ static double absolute(double number) {
         return number;
     }
 }
-//aviv needs:
-static MatamazomResult checkoutItem(Matamazom matamazom, unsigned int product_id,const double amount);
-static double evaluatePrice(Matamazom matamazom, unsigned int product_id, const double amount);
 
 
 //implementing strings copy and strings length
@@ -200,7 +200,7 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
     newProduct->product_id = id;
     int nameLength = stringLength(name);
     newProduct->name = malloc(sizeof(nameLength));
-    stringCopy(name, newProduct->name);
+    newProduct->name = stringCopy(name, newProduct->name);
     newProduct->amountType = amountType;
     newProduct->customData = copyData(customData);
     newProduct->copyData = copyData;
@@ -211,7 +211,7 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
     if (asRegister(matamazom->products, newProduct) == AS_OUT_OF_MEMORY) {
         return MATAMAZOM_OUT_OF_MEMORY;
     }
-    MatamazomProduct item = asGetFirst(matamazom->products);
+
     asChangeAmount(matamazom->products, newProduct, amount);
 
     //MatamazomProduct item = asGetFirst(matamazom->products);
@@ -220,13 +220,14 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
     return MATAMAZOM_SUCCESS;
 
 }
-
+//***
 static ASElement copyProduct(ASElement product_t) {
     MatamazomProduct product = product_t;
     MatamazomProduct copy = malloc(sizeof(*copy));
     copy->product_id = product->product_id;
     char *copy_name = malloc(sizeof(stringLength(product->name)));
-    stringCopy(copy_name, copy->name);
+    copy->name = copy_name;
+    stringCopy(product->name,copy->name);
     copy->amountType = product->amountType;
     copy->copyData = product->copyData;
     copy->freeData = product->freeData;
@@ -373,7 +374,7 @@ MatamazomResult mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigne
         return MATAMAZOM_ORDER_NOT_EXIST;
     }
     /*
-    if(!isValidId(matamazom,productId,PRODUCT,&searched_ptr)){
+    if(!isValidId(matamazom,productId,PRODUCT,NULL)){
         return MATAMAZOM_PRODUCT_NOT_EXIST;
     }
      */
@@ -382,8 +383,9 @@ MatamazomResult mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigne
         return MATAMAZOM_INVALID_AMOUNT;
     }
     MatamazomOrder actual_order = searched_ptr;
-    if(!asContains(actual_order->products,&productId)){
-        asRegister(actual_order->products,&productId);
+    unsigned int prodId = productId;
+    if(!asContains(actual_order->products,&prodId)){
+        asRegister(actual_order->products,&prodId);
     }
     int asChangeAmountReturns = asChangeAmount(actual_order->products,(ASElement)&productId,amount);
 
@@ -505,6 +507,8 @@ MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId){
     return MATAMAZOM_SUCCESS;
 }
 
+
+//waiting for lior's mtmChangeProductAmount
 static MatamazomResult checkoutItem(Matamazom matamazom, unsigned int product_id,const double amount){
     MatamazomResult result = 0;//mtmChangeProductAmount(matamazom,product_id,amount);
     if (result!=MATAMAZOM_SUCCESS){
@@ -580,3 +584,38 @@ MatamazomResult mtmPrintOrder(Matamazom matamazom, const unsigned int orderId, F
     //Print order summary
     mtmPrintOrderSummary(total_price,output);
 }
+
+
+
+
+
+
+
+
+
+
+MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id){
+    if(matamazom==NULL){
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    if(!isValidId(matamazom,id,PRODUCT,NULL)){
+        return MATAMAZOM_PRODUCT_NOT_EXIST;
+    }
+    unsigned int id_t = id;
+    int asResult = 0;
+    //delete items from orders
+    LIST_FOREACH(ListElement,i,matamazom->orders){
+        AmountSet products_in_order = ((MatamazomOrder)i)->products;
+        if(asContains(products_in_order,&id_t)){
+            asResult = asDelete(products_in_order,&id_t);
+            assert(asResult == AS_SUCCESS);
+        }
+    }
+    //delete items from warehouse
+    MatamazomProduct item = getProductById(matamazom,id);
+    asResult = asDelete(matamazom->products,item);
+    assert(asResult == AS_SUCCESS);
+    return MATAMAZOM_SUCCESS;
+}
+
+
