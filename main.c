@@ -30,9 +30,10 @@ int main(){
     printf("id: %d\n",id);
     mtmChangeProductAmountInOrder(aviv,1,4,3);
     mtmChangeProductAmountInOrder(aviv,1,3,3);
+    mtmShipOrder(aviv,id);
 
     FILE* my_file = fopen("my_file.txt","w");
-    mtmPrintOrder(aviv,1,my_file);
+    mtmPrintBestSelling(aviv,my_file);
     fclose(my_file);
 
 
