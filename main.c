@@ -102,7 +102,7 @@ int main(){
             MATAMAZOM_INTEGER_AMOUNT,&basePrice,copyDouble,freeDouble,NULL));
     assert(MATAMAZOM_NULL_ARGUMENT==mtmNewProduct(mtm,1,NULL,1,
             MATAMAZOM_INTEGER_AMOUNT,NULL,copyDouble,freeDouble,simplePrice));
-/*
+
     //checking the MATAMAZOM_INVALID_NAME case:
     assert(MATAMAZOM_INVALID_NAME==mtmNewProduct(mtm,1,"",1,
             MATAMAZOM_INTEGER_AMOUNT,&basePrice,copyDouble,freeDouble,simplePrice));
@@ -120,7 +120,7 @@ int main(){
             MATAMAZOM_INTEGER_AMOUNT,&basePrice,copyDouble,freeDouble,simplePrice));
     assert(MATAMAZOM_INVALID_NAME==mtmNewProduct(mtm,1,"|bla",1,
             MATAMAZOM_INTEGER_AMOUNT,&basePrice,copyDouble,freeDouble,simplePrice));
-*/
+
     //checking the MATAMAZOM_INVALID_AMOUNT case:
     assert(MATAMAZOM_INVALID_AMOUNT==mtmNewProduct(mtm,1,"F",-12222.001,
             MATAMAZOM_INTEGER_AMOUNT,&basePrice,copyDouble,freeDouble,simplePrice));
@@ -246,7 +246,7 @@ int main(){
     assert(MATAMAZOM_INSUFFICIENT_AMOUNT==mtmChangeProductAmount(mtm,4,-7.4999999));
     assert(MATAMAZOM_SUCCESS==mtmChangeProductAmount(mtm,4,0));
     assert(MATAMAZOM_SUCCESS==mtmChangeProductAmount(mtm,4,100));
-/*
+
     //checking the MATAMAZOM_INVALID_AMOUNT case:
     //MATAMAZOM_INTEGER_AMOUNT:
     assert(MATAMAZOM_INVALID_AMOUNT==mtmChangeProductAmount(mtm,1,-6.001000001));
@@ -272,8 +272,9 @@ int main(){
     assert(MATAMAZOM_INVALID_AMOUNT==mtmChangeProductAmount(mtm,5,5.49899999));
     assert(MATAMAZOM_INVALID_AMOUNT==mtmChangeProductAmount(mtm,5,5.501009999));
 
+
     TEST_END(mtmChangeProductAmount);
-*/
+
     RUN_TEST(mtmClearProduct);
     //checking the MATAMAZOM_NULL_ARGUMENT case:
     assert(MATAMAZOM_NULL_ARGUMENT==mtmClearProduct(NULL,1));
@@ -344,7 +345,7 @@ int main(){
     assert(MATAMAZOM_PRODUCT_NOT_EXIST==mtmChangeProductAmountInOrder(mtm,order4,8,1211));
     assert(MATAMAZOM_PRODUCT_NOT_EXIST==mtmChangeProductAmountInOrder(mtm,order4,10,1211));
     assert(MATAMAZOM_PRODUCT_NOT_EXIST==mtmChangeProductAmountInOrder(mtm,order4,11,1211));
-/*
+
     //checking the MATAMAZOM_INVALID_AMOUNT case:
     assert(MATAMAZOM_INVALID_AMOUNT==mtmChangeProductAmountInOrder(mtm,order4,2,1211.00123));
     assert(MATAMAZOM_INVALID_AMOUNT==mtmChangeProductAmountInOrder(mtm,order4,2,-1211.00123));
@@ -367,7 +368,7 @@ int main(){
     assert(MATAMAZOM_INVALID_AMOUNT==mtmChangeProductAmountInOrder(mtm,order4,5,-1.5010000001));
     assert(MATAMAZOM_INVALID_AMOUNT==mtmChangeProductAmountInOrder(mtm,order4,5,1.501234));
     assert(MATAMAZOM_INVALID_AMOUNT==mtmChangeProductAmountInOrder(mtm,order4,5,-1.501234));
-*/
+
     //checking the MATAMAZOM_SUCCESS case:
     //half-int
     assert(MATAMAZOM_SUCCESS==mtmChangeProductAmountInOrder(mtm,order4,5,-1.501));
