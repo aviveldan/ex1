@@ -43,7 +43,7 @@ typedef struct MatamazomOrder_t {
 struct Matamazom_t {
     AmountSet products; //allocated
     List orders; //allocated
-    unsigned int currentId;
+    unsigned int currentOrderId;
     double income;
 };
 
@@ -288,7 +288,7 @@ static bool newOrder(Matamazom matamazom, MatamazomOrder* target){
         free(temp);
         return false;
     }
-    temp->orderId = ++(matamazom->currentId);
+    temp->orderId = ++(matamazom->currentOrderId);
     *target = temp;
     return true;
 }
@@ -313,7 +313,7 @@ Matamazom matamazomCreate() {
     if(matamazom==NULL) {
         return NULL;
     }
-    matamazom->currentId = 0;
+    matamazom->currentOrderId = 0;
     matamazom->income = 0;
     matamazom->products = NULL;
     matamazom->orders = NULL;
@@ -546,7 +546,7 @@ MatamazomResult mtmPrintFiltered(Matamazom matamazom, MtmFilterProduct customFil
         double productAmount = getProductAmount(matamazom, product->product_id);
         if (customFilter(product->product_id, product->name, productAmount, product->customData)) {
             mtmNewProduct(filteredMatamazom, product->product_id, product->name, productAmount, product->amountType,
-                          product->customData, product->copyData, product->freeData, product->prodPrice);
+                          product->copyData(product->customData), product->copyData, product->freeData, product->prodPrice);
         }
     }
     printInventoryNoHead(filteredMatamazom, output);
