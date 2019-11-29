@@ -438,11 +438,11 @@ int compareProductsIds(ASElement lhs, ASElement rhs) {
 
 
 MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId){
-    if(matamazom==NULL){
+    if(matamazom==NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
     MatamazomOrder order = getOrderById(matamazom,orderId);
-    if(order==NULL){
+    if(order==NULL) {
         return MATAMAZOM_ORDER_NOT_EXIST;
     }
     //now order variable contains the ListElement of the shipped order.
@@ -593,11 +593,11 @@ MatamazomResult mtmPrintOrder(Matamazom matamazom, const unsigned int orderId, F
     }
     //Print order summary
     mtmPrintOrderSummary(total_price,output);
-    return AS_SUCCESS;
+    return MATAMAZOM_SUCCESS;
 }
 
 MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id){
-    if(matamazom==NULL){
+    if(matamazom==NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
 
