@@ -268,3 +268,18 @@ bool testPrintFiltered() {
     matamazomDestroy(mtm);
     return true;
 }
+
+bool testMallocs() {
+    Matamazom mtm = matamazomCreate();
+    makeInventory(mtm);
+    unsigned int order1 = mtmCreateNewOrder(mtm);
+    ASSERT_OR_DESTROY(order1 > 0);
+    ASSERT_OR_DESTROY(MATAMAZOM_SUCCESS ==
+                      mtmChangeProductAmountInOrder(mtm, order1, 11, 1.0));
+    ASSERT_OR_DESTROY(MATAMAZOM_PRODUCT_NOT_EXIST ==
+                      mtmChangeProductAmountInOrder(mtm, order1, 15, 1.0));
+    ASSERT_OR_DESTROY(MATAMAZOM_INVALID_AMOUNT ==
+                      mtmChangeProductAmountInOrder(mtm, order1, 11, 1.2));
+    matamazomDestroy(mtm);
+    return true;
+}

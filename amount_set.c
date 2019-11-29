@@ -100,8 +100,6 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
     set->iterator = set->first;
     ASListNode previous = set->iterator;
     //find where the element belongs:
-    //in example: element is *5* and list is 1,4,7
-    //list will now be 1,4,*5*,7
     for(ASListNode current=set->iterator;current!=NULL;current=current->next) {
         if ((set->compareElements(element, current->value)) < 0) {
             ASListNode node = createNode(set,element,set->iterator);

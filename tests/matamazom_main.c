@@ -3,6 +3,7 @@
 
 int main()
 {
+    RUN_TEST(testMallocs);
     RUN_TEST(testCreate);
     RUN_TEST(testDestroy);
     RUN_TEST(testModifyProducts);

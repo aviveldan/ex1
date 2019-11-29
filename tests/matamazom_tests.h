@@ -11,5 +11,6 @@ bool testPrintInventory();
 bool testPrintOrder();
 bool testPrintBestSelling();
 bool testPrintFiltered();
-
+//tests by aviv:
+bool testMallocs();
 #endif /* MATAMAZOM_TESTS_H_ */

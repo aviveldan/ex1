@@ -171,7 +171,7 @@ int main(){
             MATAMAZOM_HALF_INTEGER_AMOUNT,&basePrice,copyDouble,freeDouble,simplePrice));
     assert(MATAMAZOM_SUCCESS==mtmNewProduct(mtm,7,"bed",9.999999999999999999999,
             MATAMAZOM_HALF_INTEGER_AMOUNT,&basePrice,copyDouble,freeDouble,simplePrice));
-/*
+
     //checking the MATAMAZOM_PRODUCT_ALREADY_EXIST case:
     assert(MATAMAZOM_PRODUCT_ALREADY_EXIST==mtmNewProduct(mtm,1,"First",5.0009999999999,
             MATAMAZOM_INTEGER_AMOUNT,&basePrice,copyDouble,freeDouble,simplePrice));

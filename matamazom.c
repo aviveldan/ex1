@@ -168,21 +168,25 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
         return MATAMAZOM_OUT_OF_MEMORY;
     }
     if (matamazom==NULL||name==NULL||customData==NULL||copyData==NULL||freeData==NULL||prodPrice==NULL) {
+        free(newProduct);
         return MATAMAZOM_NULL_ARGUMENT;
     }
     if(!(isNameValid(name))) {
+        free(newProduct);
         return MATAMAZOM_INVALID_NAME;
     }
     if (!(isValidAmount(amountType, amount)) || amount<0) {
+        free(newProduct);
         return MATAMAZOM_INVALID_AMOUNT;
     }
     if(idExists(matamazom, id)) {
+        free(newProduct);
         return MATAMAZOM_PRODUCT_ALREADY_EXIST;
     }
 
     newProduct->product_id = id;
-    int nameLength = stringLength(name);
-    newProduct->name = malloc(sizeof(nameLength));
+    int nameLength = stringLength(name)+1;
+    newProduct->name = malloc(nameLength);
     newProduct->name = stringCopy(name, newProduct->name);
     newProduct->amountType = amountType;
     newProduct->customData = copyData(customData);
@@ -192,6 +196,7 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
     newProduct->income = 0;
 
     if (asRegister(matamazom->products, newProduct) == AS_OUT_OF_MEMORY) {
+        free(newProduct);
         return MATAMAZOM_OUT_OF_MEMORY;
     }
 
@@ -202,23 +207,7 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
 }
 
 static ASElement copyProduct(ASElement product_t) {
-    MatamazomProduct product = product_t;
-    MatamazomProduct copy = malloc(sizeof(*copy));
-    copy->product_id = product->product_id;
-    char *copy_name = malloc(sizeof(stringLength(product->name)));
-    if (copy_name==NULL) {
-        return NULL;
-    }
-    copy->name = copy_name;
-    stringCopy(product->name,copy->name);
-    copy->amountType = product->amountType;
-    copy->copyData = product->copyData;
-    copy->freeData = product->freeData;
-    copy->prodPrice = product->prodPrice;
-    copy->customData = product->copyData(product->customData);
-    copy->income = product->income;
-
-    return copy;
+    return product_t;
 }
 
 static void freeProduct(ASElement product_t) {
@@ -261,28 +250,23 @@ MatamazomResult mtmChangeProductAmount(Matamazom matamazom, const unsigned int i
 //Order functions:
 
 static ListElement copyOrder(ListElement order_t) {
-    MatamazomOrder order = order_t;
-    MatamazomOrder copy = malloc(sizeof(*copy));
-
-    if (copy != NULL) {
-        copy->orderId = order->orderId;
-        copy->products = asCopy(order->products);
-        if(copy->products == NULL) {
-            free(copy);
-            copy=NULL;
-        }
-    }
-    return copy;
+    return order_t;
 }
 
 static void freeOrder(ListElement order_t) {
+    static int num = 0;
+    if(num >= 1){
+        num+=0;
+    }
     compareOrders(order_t,order_t);
     if(order_t==NULL){
         return;
     }
     MatamazomOrder order = order_t;
+    asClear(order->products);
     asDestroy(order->products);
     free(order);
+    num++;
 }
 
 static int compareOrders(ListElement lhs, ListElement rhs) {
@@ -357,6 +341,7 @@ void matamazomDestroy(Matamazom matamazom){
     }
     listDestroy(matamazom->orders);
     asDestroy(matamazom->products);
+    freeOrder(NULL);
     free(matamazom);
 }
 
@@ -451,7 +436,7 @@ static ASElement copyProductId(ASElement productid_t) {
 }
 //void
 static void freeProductId(ASElement productid_t) {
-    free(productid_t);
+    free((unsigned int*)productid_t);
 }
 //static
 int compareProductsIds(ASElement lhs, ASElement rhs) {
@@ -491,6 +476,7 @@ MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId){
         checkoutItem(matamazom,current_product_id,current_amount);
     }
     mtmCancelOrder(matamazom,orderId);
+
     return MATAMAZOM_SUCCESS;
 }
 
@@ -558,7 +544,7 @@ MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output) {
 }
 
 MatamazomResult mtmPrintFiltered(Matamazom matamazom, MtmFilterProduct customFilter, FILE *output) {
-    if (matamazom == NULL || output == NULL) {
+    if (matamazom == NULL || output == NULL || customFilter == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
     Matamazom filteredMatamazom = matamazomCreate();
