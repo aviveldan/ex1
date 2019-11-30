@@ -45,7 +45,7 @@ static ASListNode createNode(AmountSet set,ASElement value,ASListNode next){
 //Searches an element in the list and returns a pointer to it.
 //will return NULL if element isn't in the list.
 ASListNode searchFor(AmountSet set, ASElement element){
-    if((set==NULL)||(set->first==NULL)){
+    if((set==NULL)||(set->first==NULL || element==NULL)){
         return NULL;
     }
     
@@ -165,7 +165,7 @@ AmountSet asCopy(AmountSet set){
     if(result==NULL){
         return NULL;
     }
-    result->size = set->size;
+    //***result->size = set->size;
     // Insert first item
     if(set->first == NULL){
         result->first = NULL;
@@ -174,6 +174,7 @@ AmountSet asCopy(AmountSet set){
     ASListNode iterator = set->first;
     while(iterator!=NULL){
         asRegister(result,iterator->value);
+        asChangeAmount(result,iterator->value,iterator->amount);
         iterator=iterator->next;
     }
     return result;

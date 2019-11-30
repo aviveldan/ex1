@@ -51,7 +51,8 @@ static double absolute(double number);
 static bool idExists(Matamazom matamazom, unsigned int id);
 
 //Order static functions:
-static void deleteItemFromOrder(MatamazomOrder order,unsigned int product_id);
+static void deleteItemFromOrder(MatamazomOrder order,
+                                unsigned int product_id);
 static bool isItemInOrder(MatamazomOrder order,unsigned int product_id);
 static bool isItemInAnyOrder(Matamazom matamazom,unsigned int product_id);
 static ListElement copyOrder(ListElement order_t);
@@ -59,8 +60,10 @@ static void freeOrder(ListElement order_t);
 static int compareOrders(ListElement lhs, ListElement rhs);
 
 static bool newOrder(Matamazom matamazom, MatamazomOrder* target);
-static double evaluatePrice(Matamazom matamazom, unsigned int product_id, const double amount);
-static MatamazomResult checkoutItem(Matamazom matamazom, unsigned int product_id,const double amount);
+static double evaluatePrice(Matamazom matamazom, unsigned int product_id,
+                            const double amount);
+static MatamazomResult checkoutItem(Matamazom matamazom,
+                                    unsigned int product_id,const double amount);
 static MatamazomOrder getOrderById(Matamazom matamazom,unsigned int id);
 
 
@@ -79,11 +82,12 @@ static char* stringCopy(const char* source, char* destination);
 static ASElement copyProduct(ASElement product_t);
 static void freeProduct(ASElement product_t);
 static int compareProducts(ASElement lhs, ASElement rhs);
-static double getProductAmount(Matamazom matamazom,unsigned int product_id); //already implemented
-static MatamazomProduct getProductById(Matamazom matamazom ,const unsigned int productId);
+static double getProductAmount(Matamazom matamazom,unsigned int product_id);
+static MatamazomProduct getProductById(Matamazom matamazom
+        ,const unsigned int productId);
 static void printInventoryNoHead(Matamazom matamazom, FILE *output);
 
-//checks if the given amount is consistent with product's amount type. *doesn't check if amount<0*
+
 bool isValidAmount(MatamazomAmountType type, const double amount_t) {
     double amount = absolute(amount_t);
     if (type==MATAMAZOM_ANY_AMOUNT) {
@@ -92,7 +96,8 @@ bool isValidAmount(MatamazomAmountType type, const double amount_t) {
     int floor = (int)(amount);
     double difference = amount-floor;
     if (type==MATAMAZOM_INTEGER_AMOUNT) {
-        if (difference<=LEGAL_DIFFERENCE || (1-difference)<LEGAL_DIFFERENCE) {
+        if (difference<=LEGAL_DIFFERENCE ||
+            (1-difference)<LEGAL_DIFFERENCE) {
             return true;
         }
     }
@@ -141,7 +146,9 @@ static bool isNameValid(const char *name) {
     if (*name==END_OF_STRING) {
         return 0;
     }
-    if ((*name<=LAST_UPPER && *name>=FIRST_UPPER) || (*name<=LAST_LOWER && *name>=FIRST_LOWER) || ((*name<=NINE)&&(*name>=0))) {
+    if ((*name<=LAST_UPPER&&*name>=FIRST_UPPER)
+        ||(*name<=LAST_LOWER&&*name>=FIRST_LOWER)
+        ||((*name<=NINE)&&(*name>=0))) {
         return 1;
     }
     return 0;
@@ -159,9 +166,12 @@ static bool idExists(Matamazom matamazom, unsigned int id) {
 }
 
 
-MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const char *name, const double amount,
-                              const MatamazomAmountType amountType, const MtmProductData customData,
-                              MtmCopyData copyData, MtmFreeData freeData, MtmGetProductPrice prodPrice) {
+MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id,
+                              const char *name, const double amount,
+                              const MatamazomAmountType amountType,
+                              const MtmProductData customData,
+                              MtmCopyData copyData, MtmFreeData freeData,
+                              MtmGetProductPrice prodPrice) {
 
     MatamazomProduct newProduct = malloc(sizeof(*newProduct));
     if (newProduct == NULL) {
@@ -546,7 +556,7 @@ MatamazomResult mtmPrintFiltered(Matamazom matamazom, MtmFilterProduct customFil
         double productAmount = getProductAmount(matamazom, product->product_id);
         if (customFilter(product->product_id, product->name, productAmount, product->customData)) {
             mtmNewProduct(filteredMatamazom, product->product_id, product->name, productAmount, product->amountType,
-                          product->copyData(product->customData), product->copyData, product->freeData, product->prodPrice);
+                          (product->customData), product->copyData, product->freeData, product->prodPrice);
         }
     }
     printInventoryNoHead(filteredMatamazom, output);
@@ -562,7 +572,6 @@ static void printInventoryNoHead(Matamazom matamazom, FILE *output){
         double productPrice = product->prodPrice(product->customData, 1);
         mtmPrintProductDetails(product->name, product->product_id, productAmount, productPrice, output);
     }
-    return MATAMAZOM_SUCCESS;
 }
 
 
