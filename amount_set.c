@@ -48,7 +48,7 @@ ASListNode searchFor(AmountSet set, ASElement element){
     if((set==NULL)||(set->first==NULL || element==NULL)){
         return NULL;
     }
-    
+
     if(set->compareElements(set->first->value,element)==0) {
         return set->first;
     }
@@ -96,11 +96,12 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
     if (asContains(set,element)) {
         return AS_ITEM_ALREADY_EXISTS;
     }
-    //now element value is greater than the first in the list, and the list isn't empty:
+    //now element value is greater than the first in the list, and the list
+    // isn't empty:
     set->iterator = set->first;
     ASListNode previous = set->iterator;
     //find where the element belongs:
-    for(ASListNode current=set->iterator;current!=NULL;current=current->next) {
+    for(ASListNode current=set->iterator;current!=NULL;current=current->next){
         if ((set->compareElements(element, current->value)) < 0) {
             ASListNode node = createNode(set,element,set->iterator);
             if(node==NULL){
@@ -114,7 +115,8 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
             previous = set->iterator;
         set->iterator = set->iterator->next;
     }
-    //element is greater than all existing element in list- so place it in the end
+    //element is greater than all existing element in list- so place it
+    // in the end
     //previous now will point to the end of the list
     ASListNode node = createNode(set,element,NULL);
     if(node==NULL){
@@ -125,9 +127,10 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
     return AS_SUCCESS;
 }
 
-//assigns iterator to the first element of the set and returns the value of the first element.
+//assigns iterator to the first element of the set and returns the value of
+// the first element.
 ASElement asGetFirst(AmountSet set) {
-    if (set==NULL || set->first==NULL ||(set->first==NULL && set->iterator==NULL)) {
+    if (set==NULL||set->first==NULL||(set->first==NULL&&set->iterator==NULL)){
         return NULL;
     } else {
         set->iterator=set->first;
@@ -161,7 +164,8 @@ AmountSet asCopy(AmountSet set){
         return NULL;
     }
     // Create a new set
-    AmountSet result =  asCreate(set->copyElement,set->freeElement,set->compareElements);
+    AmountSet result =  asCreate(set->copyElement,set->freeElement,
+                                 set->compareElements);
     if(result==NULL){
         return NULL;
     }
@@ -236,7 +240,8 @@ bool asContains(AmountSet set, ASElement element){
         return true;
 }
 
-AmountSetResult asChangeAmount(AmountSet set, ASElement element, const double amount){
+AmountSetResult asChangeAmount(AmountSet set, ASElement element,
+                               const double amount){
     if(set==NULL || element == NULL){
         return AS_NULL_ARGUMENT;
     }
@@ -272,7 +277,7 @@ AmountSetResult asDelete(AmountSet set, ASElement element){
     }
     ASListNode beg = set->first;
 
-    if(beg==node){//if wants to delete the first element but there is a next node
+    if(beg==node){//if deletes the first element but there is a next node
         set->first = set->first->next; //next node is now the first
         set->freeElement(beg->value); //free prev node
         free(beg);
@@ -294,7 +299,8 @@ AmountSetResult asDelete(AmountSet set, ASElement element){
     return AS_SUCCESS;
 }
 
-AmountSetResult asGetAmount(AmountSet set, ASElement element, double *outAmount){
+AmountSetResult asGetAmount(AmountSet set, ASElement element,
+                            double *outAmount){
     if(set==NULL||element==NULL||outAmount==NULL){
         return AS_NULL_ARGUMENT;
     }
