@@ -11,7 +11,7 @@
 #define LAST_LOWER 'z'
 #define FIRST_UPPER 'A'
 #define LAST_UPPER 'Z'
-#define NINE 9
+#define NINE '9'
 #define LEGAL_DIFFERENCE 0.001
 #define HALF 0.5
 
@@ -148,7 +148,7 @@ static bool isNameValid(const char *name) {
     }
     if ((*name<=LAST_UPPER&&*name>=FIRST_UPPER)
         ||(*name<=LAST_LOWER&&*name>=FIRST_LOWER)
-        ||((*name<=NINE)&&(*name>=0))) {
+        ||((*name<=NINE)&&(*name>='0'))) {
         return 1;
     }
     return 0;
@@ -246,11 +246,15 @@ MatamazomResult mtmChangeProductAmount(Matamazom matamazom, const unsigned int i
     if (!isValidAmount(product->amountType, amount)) {
         return MATAMAZOM_INVALID_AMOUNT;
     }
+    if(amount==0){
+        return MATAMAZOM_SUCCESS;
+    }
     double productAmount;
     asGetAmount(matamazom->products, product, &productAmount);
     if (productAmount+amount<0) {
         return MATAMAZOM_INSUFFICIENT_AMOUNT;
     }
+
     asChangeAmount(matamazom->products, product, amount);
     return MATAMAZOM_SUCCESS;
 }
