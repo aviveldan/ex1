@@ -139,7 +139,9 @@ bool testIteration() {
     int lastId = -1;
     AS_FOREACH(int*, currId, set) {
         ASSERT_OR_DESTROY(lastId < (*currId));
+        lastId = *currId;
     }
+
     asDestroy(set);
     return true;
 }
