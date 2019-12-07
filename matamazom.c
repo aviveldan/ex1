@@ -620,14 +620,19 @@ MatamazomResult mtmPrintOrder(Matamazom matamazom, const unsigned int orderId,
         unsigned int product_id = *(unsigned int*)i;
         double amount_in_order = 0;
         asGetAmount(products_in_order,i,&amount_in_order);
-        double price_for_product = evaluatePrice(matamazom,product_id,
-                amount_in_order);
-        MatamazomProduct product = getProductById(matamazom,product_id);
-        //Print details to file
-        mtmPrintProductDetails(product->name,product_id,amount_in_order,
-                price_for_product,output);
+        if(amount_in_order==0){
+            amount_in_order=0;
+        }
+        else{
+            double price_for_product = evaluatePrice(matamazom,product_id,
+                                                     amount_in_order);
+            MatamazomProduct product = getProductById(matamazom,product_id);
+            //Print details to file
+            mtmPrintProductDetails(product->name,product_id,amount_in_order,
+                                   price_for_product,output);
 
-        total_price += price_for_product;
+            total_price += price_for_product;
+        }
     }
 
     //Print order summary
