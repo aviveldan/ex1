@@ -89,22 +89,23 @@ static MatamazomProduct getProductById(Matamazom matamazom
 static void printInventoryNoHead(Matamazom matamazom, FILE *output);
 
 
-bool isValidAmount(MatamazomAmountType type, const double amount_t) {
+static bool isValidAmount(MatamazomAmountType type, const double amount_t) {
     double amount = absolute(amount_t);
     if (type==MATAMAZOM_ANY_AMOUNT) {
         return true;
     }
     int floor = (int)(amount);
-    double difference = amount-floor;
+    (double)(floor);
+    double difference = absolute(amount-floor);
     if (type==MATAMAZOM_INTEGER_AMOUNT) {
         if (difference<=LEGAL_DIFFERENCE ||
-            (1-difference)<LEGAL_DIFFERENCE) {
+                (1-difference)<=LEGAL_DIFFERENCE) {
             return true;
         }
     }
     if(type==MATAMAZOM_HALF_INTEGER_AMOUNT) {
-        if(difference<=LEGAL_DIFFERENCE || (1-difference)<LEGAL_DIFFERENCE||
-           absolute(difference-HALF)<LEGAL_DIFFERENCE) {
+        if(difference<=LEGAL_DIFFERENCE || (1-difference)<=LEGAL_DIFFERENCE||
+                (difference-HALF)<=LEGAL_DIFFERENCE) {
             return true;
         }
     }
@@ -113,7 +114,7 @@ bool isValidAmount(MatamazomAmountType type, const double amount_t) {
 
 static double absolute(double number) {
     if(number<0) {
-        return (-number);
+        return (-1*number);
     } else {
         return number;
     }
@@ -241,15 +242,15 @@ MatamazomResult mtmChangeProductAmount(Matamazom matamazom,
     if (matamazom==NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
-    if (!idExists(matamazom, id)) {
+    if(amount==0){
+        return MATAMAZOM_SUCCESS;
+    }
+    if (idExists(matamazom, id)==false) {
         return MATAMAZOM_PRODUCT_NOT_EXIST;
     }
     MatamazomProduct product = getProductById(matamazom, id);
-    if (!isValidAmount(product->amountType, amount)) {
+    if (isValidAmount(product->amountType, amount)==false) {
         return MATAMAZOM_INVALID_AMOUNT;
-    }
-    if(amount==0){
-        return MATAMAZOM_SUCCESS;
     }
     double productAmount;
     asGetAmount(matamazom->products, product, &productAmount);

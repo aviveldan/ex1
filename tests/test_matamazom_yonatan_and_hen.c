@@ -160,10 +160,13 @@ bool testChangeProductAmount(){
     mtmNewProduct(matamazom,4,"prod",4,MATAMAZOM_INTEGER_AMOUNT,data,copyInt,freeInt,getPrice);
     mtmPrintInventory(matamazom,outfile);
 
+
     MatamazomResult result = mtmChangeProductAmount(matamazom,2,0.3);
     passed = passed&& (result==MATAMAZOM_SUCCESS);
     passed = passed && mtmChangeProductAmount(matamazom,3,0.3)==MATAMAZOM_INVALID_AMOUNT;
     passed = passed && mtmChangeProductAmount(matamazom,3,-5)==MATAMAZOM_INSUFFICIENT_AMOUNT;
+    //fell here
+    MatamazomResult my_res = mtmChangeProductAmount(matamazom,3,0.501);
     //passed = passed && mtmChangeProductAmount(matamazom,3,0.501)==MATAMAZOM_SUCCESS;
     passed = passed && mtmChangeProductAmount(matamazom,3,0.50101)==MATAMAZOM_INVALID_AMOUNT;
     //passed = passed && mtmChangeProductAmount(matamazom,3,0.499)==MATAMAZOM_SUCCESS;
