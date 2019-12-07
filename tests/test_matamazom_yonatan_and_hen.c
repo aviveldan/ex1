@@ -164,17 +164,22 @@ bool testChangeProductAmount(){
     passed = passed&& (result==MATAMAZOM_SUCCESS);
     passed = passed && mtmChangeProductAmount(matamazom,3,0.3)==MATAMAZOM_INVALID_AMOUNT;
     passed = passed && mtmChangeProductAmount(matamazom,3,-5)==MATAMAZOM_INSUFFICIENT_AMOUNT;
-    //passed = passed && mtmChangeProductAmount(matamazom,3,0.501)==MATAMAZOM_SUCCESS;
+
+    //MatamazomResult my_result = mtmChangeProductAmount(matamazom,3,0.501);
+    //MatamazomResult my_result2 = mtmChangeProductAmount(matamazom,3,0.499);
+    //MatamazomResult my_result3 = mtmChangeProductAmount(matamazom,3,0.498);
+    //MatamazomResult my_result4 = mtmChangeProductAmount(matamazom,4,0.999);
+    passed = passed && mtmChangeProductAmount(matamazom,3,0.501)==MATAMAZOM_SUCCESS;
     passed = passed && mtmChangeProductAmount(matamazom,3,0.50101)==MATAMAZOM_INVALID_AMOUNT;
-    //passed = passed && mtmChangeProductAmount(matamazom,3,0.499)==MATAMAZOM_SUCCESS;
-    //passed = passed && mtmChangeProductAmount(matamazom,3,0.498)==MATAMAZOM_INVALID_AMOUNT;
+    /**/passed = passed && mtmChangeProductAmount(matamazom,3,0.499)==MATAMAZOM_SUCCESS;
+    /**/passed = passed && mtmChangeProductAmount(matamazom,3,0.498)==MATAMAZOM_INVALID_AMOUNT;
     mtmPrintInventory(matamazom,outfile);
 
     passed = passed && mtmChangeProductAmount(matamazom,3,4.5)==MATAMAZOM_SUCCESS;
     passed = passed && mtmChangeProductAmount(matamazom,4,0.5)==MATAMAZOM_INVALID_AMOUNT;
     passed = passed && mtmChangeProductAmount(matamazom,4,0.2)==MATAMAZOM_INVALID_AMOUNT;
     passed = passed && mtmChangeProductAmount(matamazom,4,1.001)==MATAMAZOM_SUCCESS;
-    //passed = passed && mtmChangeProductAmount(matamazom,4,0.999)==MATAMAZOM_SUCCESS;
+    /**/passed = passed && mtmChangeProductAmount(matamazom,4,0.999)==MATAMAZOM_SUCCESS;
     passed = passed && mtmChangeProductAmount(matamazom,4,1.00101)==MATAMAZOM_INVALID_AMOUNT;
     passed = passed && mtmChangeProductAmount(matamazom,4,0.998)==MATAMAZOM_INVALID_AMOUNT;
     passed = passed && mtmChangeProductAmount(matamazom,4,-10)==MATAMAZOM_INSUFFICIENT_AMOUNT;

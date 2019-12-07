@@ -1,6 +1,7 @@
 //
 // Created by avive on 21/11/2019.
 //
+#include <math.h>
 #include "stdlib.h"
 #include "matamazom.h"
 #include "list.h"
@@ -103,9 +104,9 @@ bool isValidAmount(MatamazomAmountType type, const double amount_t) {
         }
     }
     if(type==MATAMAZOM_HALF_INTEGER_AMOUNT) {
-        if(difference<=LEGAL_DIFFERENCE || (1-difference)<LEGAL_DIFFERENCE||
-           absolute(difference-HALF)<LEGAL_DIFFERENCE) {
-            return true;
+        if(difference<=LEGAL_DIFFERENCE || (1-round(10000*difference)/10000)<=LEGAL_DIFFERENCE||
+            round(10000*absolute(difference-HALF))/10000<=LEGAL_DIFFERENCE){
+                return true;
         }
     }
     return false;
