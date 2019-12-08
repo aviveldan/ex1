@@ -17,7 +17,11 @@
 #define HALF 0.5
 #define ROUND 100000000000000000
 
+#define NONE_TEXT "none\n"
 
+#define BEST_SELLING_MESSAGE "Best Selling Product:\n"
+
+#define INVENTORY_MESSAGE "Inventory Status:\n"
 
 typedef enum OrderOrProduct_t {
     PRODUCT = 0,
