@@ -108,7 +108,6 @@ static bool isValidAmount(MatamazomAmountType type, const double amount_t) {
             return true;
         }
     }
-    //(1-round(10000*difference)/10000)
     if(type==MATAMAZOM_HALF_INTEGER_AMOUNT) {
         if(difference<=LEGAL_DIFFERENCE || roundedInt<=LEGAL_DIFFERENCE||
             roundedHalf<=LEGAL_DIFFERENCE){
@@ -403,7 +402,7 @@ MatamazomResult mtmChangeProductAmountInOrder(Matamazom matamazom,
     unsigned int product_id = productId;
     double current_amount_in_order = 0;
     asGetAmount(order->products,&product_id,&current_amount_in_order);
-    if(amount<0 && (current_amount_in_order+amount <=0)) {
+    if(amount<0 && (current_amount_in_order+amount <=LEGAL_DIFFERENCE)) {
         asDelete(order->products,&product_id);
         return MATAMAZOM_SUCCESS;
     }
@@ -540,7 +539,7 @@ MatamazomResult mtmPrintInventory(Matamazom matamazom, FILE *output) {
     if(matamazom==NULL || output == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
-    fprintf(output,"Inventory Status:\n");
+    fprintf(output,INVENTORY_MESSAGE);
     printInventoryNoHead(matamazom,output);
     return MATAMAZOM_SUCCESS;
 }
@@ -549,24 +548,25 @@ MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output) {
     if (matamazom == NULL || output == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
-    fprintf(output,"Best Selling Product:\n");
+    fprintf(output,BEST_SELLING_MESSAGE);
     double highestIncome = 0;
     MatamazomProduct highestProduct = asGetFirst(matamazom->products);
     AS_FOREACH(MatamazomProduct, iterator, matamazom->products) {
         MatamazomProduct product = iterator;
         if (product->income>highestIncome) {
-            if ((absolute(product->income-highestIncome))>LEGAL_DIFFERENCE) {
+            if ((absolute(product->income-highestIncome))
+                >LEGAL_DIFFERENCE) {
                 highestIncome = product->income;
                 highestProduct = product;
             }
         }
     }
     if(highestIncome==0){
-        fprintf(output,"none\n");
+        fprintf(output,NONE_TEXT);
         return MATAMAZOM_SUCCESS;
     }
     mtmPrintIncomeLine(highestProduct->name, highestProduct->product_id,
-            highestIncome, output);
+                       highestIncome, output);
     return MATAMAZOM_SUCCESS;
 }
 

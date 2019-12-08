@@ -1,6 +1,12 @@
 #ifndef MATAMAZOM_H_
 #define MATAMAZOM_H_
 
+#define NONE_TEXT "none\n"
+
+#define BEST_SELLING_MESSAGE "Best Selling Product:\n"
+
+#define INVENTORY_MESSAGE "Inventory Status:\n"
+
 #include <stdio.h>
 #include <stdbool.h>
 
