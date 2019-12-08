@@ -555,8 +555,10 @@ MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output) {
     AS_FOREACH(MatamazomProduct, iterator, matamazom->products) {
         MatamazomProduct product = iterator;
         if (product->income>highestIncome) {
-            highestIncome = product->income;
-            highestProduct = product;
+            if ((absolute(product->income-highestIncome))>LEGAL_DIFFERENCE) {
+                highestIncome = product->income;
+                highestProduct = product;
+            }
         }
     }
     if(highestIncome==0){
