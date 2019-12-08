@@ -15,7 +15,9 @@
 #define NINE '9'
 #define LEGAL_DIFFERENCE 0.001
 #define HALF 0.5
-#define ROUND 10000000000
+#define ROUND 100000000000000000
+
+
 
 typedef enum OrderOrProduct_t {
     PRODUCT = 0,

@@ -138,7 +138,7 @@ int main(){
             MATAMAZOM_INTEGER_AMOUNT,&basePrice,copyDouble,freeDouble,simplePrice));
     assert(MATAMAZOM_INVALID_AMOUNT==mtmNewProduct(mtm,1,"F",10.997999,
             MATAMAZOM_INTEGER_AMOUNT,&basePrice,copyDouble,freeDouble,simplePrice));
-    assert(MATAMAZOM_INVALID_AMOUNT==mtmNewProduct(mtm,1,"F",10.998999999999999,
+    assert(MATAMAZOM_INVALID_AMOUNT==mtmNewProduct(mtm,1,"F",10.9989,
             MATAMAZOM_INTEGER_AMOUNT,&basePrice,copyDouble,freeDouble,simplePrice));
     assert(MATAMAZOM_INVALID_AMOUNT==mtmNewProduct(mtm,1,"F",2.0010000001,
             MATAMAZOM_INTEGER_AMOUNT,&basePrice,copyDouble,freeDouble,simplePrice));
