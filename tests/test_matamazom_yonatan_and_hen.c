@@ -164,11 +164,12 @@ bool testChangeProductAmount(){
     passed = passed&& (result==MATAMAZOM_SUCCESS);
     passed = passed && mtmChangeProductAmount(matamazom,3,0.3)==MATAMAZOM_INVALID_AMOUNT;
     passed = passed && mtmChangeProductAmount(matamazom,3,-5)==MATAMAZOM_INSUFFICIENT_AMOUNT;
-
-    //MatamazomResult my_result = mtmChangeProductAmount(matamazom,3,0.501);
-    //MatamazomResult my_result2 = mtmChangeProductAmount(matamazom,3,0.499);
-    //MatamazomResult my_result3 = mtmChangeProductAmount(matamazom,3,0.498);
-    //MatamazomResult my_result4 = mtmChangeProductAmount(matamazom,4,0.999);
+/***/
+    MatamazomResult my_result = mtmChangeProductAmount(matamazom,3,0.501);
+    MatamazomResult my_result2 = mtmChangeProductAmount(matamazom,3,0.499);
+    MatamazomResult my_result3 = mtmChangeProductAmount(matamazom,3,0.498);
+    MatamazomResult my_result4 = mtmChangeProductAmount(matamazom,4,0.999);
+    /***/
     passed = passed && mtmChangeProductAmount(matamazom,3,0.501)==MATAMAZOM_SUCCESS;
     passed = passed && mtmChangeProductAmount(matamazom,3,0.50101)==MATAMAZOM_INVALID_AMOUNT;
     /**/passed = passed && mtmChangeProductAmount(matamazom,3,0.499)==MATAMAZOM_SUCCESS;

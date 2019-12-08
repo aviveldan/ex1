@@ -15,6 +15,7 @@
 #define NINE '9'
 #define LEGAL_DIFFERENCE 0.001
 #define HALF 0.5
+#define ROUND 10000000000
 
 typedef enum OrderOrProduct_t {
     PRODUCT = 0,
@@ -90,22 +91,25 @@ static MatamazomProduct getProductById(Matamazom matamazom
 static void printInventoryNoHead(Matamazom matamazom, FILE *output);
 
 
-bool isValidAmount(MatamazomAmountType type, const double amount_t) {
+static bool isValidAmount(MatamazomAmountType type, const double amount_t) {
     double amount = absolute(amount_t);
     if (type==MATAMAZOM_ANY_AMOUNT) {
         return true;
     }
     int floor = (int)(amount);
     double difference = amount-floor;
+    double roundedHalf = round(ROUND*absolute(difference-HALF))/ROUND;
+    double roundedInt = round(ROUND*(1-difference))/ROUND;
     if (type==MATAMAZOM_INTEGER_AMOUNT) {
         if (difference<=LEGAL_DIFFERENCE ||
-            (1-difference)<LEGAL_DIFFERENCE) {
+                roundedInt<=LEGAL_DIFFERENCE) {
             return true;
         }
     }
+    //(1-round(10000*difference)/10000)
     if(type==MATAMAZOM_HALF_INTEGER_AMOUNT) {
-        if(difference<=LEGAL_DIFFERENCE || (1-round(10000*difference)/10000)<=LEGAL_DIFFERENCE||
-            round(10000*absolute(difference-HALF))/10000<=LEGAL_DIFFERENCE){
+        if(difference<=LEGAL_DIFFERENCE || roundedInt<=LEGAL_DIFFERENCE||
+            roundedHalf<=LEGAL_DIFFERENCE){
                 return true;
         }
     }
@@ -114,7 +118,7 @@ bool isValidAmount(MatamazomAmountType type, const double amount_t) {
 
 static double absolute(double number) {
     if(number<0) {
-        return (-number);
+        return (-1*number);
     } else {
         return number;
     }
